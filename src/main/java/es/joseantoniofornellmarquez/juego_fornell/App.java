@@ -1,30 +1,42 @@
 package es.joseantoniofornellmarquez.juego_fornell;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Application;
+import javafx.event.ActionEvent;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 
 /**
  * JavaFX App
  */
 public class App extends Application {
+//Constantes del juego
+//Constantes del tamaño de la ventana
+final int ESCENA_TAM_X = 800;
+final int ESCENA_TAM_Y = 600;
 //Variables del juego
 //Variable root
 Pane root;
 //Variable para el grupo
 Group grupoCuerpo;
+//Velocidad del movimiento del personaje
+int movimiento = 0;
+
     @Override
     public void start(Stage stage) {
         root = new Pane();
-        Scene scene = new Scene(root, 800, 600);
+        Scene scene = new Scene(root, ESCENA_TAM_X, ESCENA_TAM_Y);
         scene.setFill(Color.BLACK);
         stage.setTitle("Casper Y Mia");
         stage.setScene(scene);
@@ -35,7 +47,7 @@ Group grupoCuerpo;
         ImageView fondoVisto2 = new ImageView(fondo);
         fondoVisto.setLayoutX(0);
         fondoVisto.setLayoutY(0);
-        fondoVisto2.setLayoutX(600);
+        fondoVisto2.setLayoutX(ESCENA_TAM_Y);
         fondoVisto2.setLayoutY(0);
         root.getChildren().add(fondoVisto);
         root.getChildren().add(fondoVisto2);
@@ -89,9 +101,29 @@ Group grupoCuerpo;
         //Agrupar el cuerpo del personaje
         root.getChildren().add(grupoCuerpo);
         //Teclas para el movimiento del personaje
+        scene.setOnKeyPressed((KeyEvent event) -> {
+            switch(event.getCode()){
+                case LEFT:
+                    movimiento = -3;
+                    break;
+                case RIGHT:
+                    movimiento = 3;
+                    break;
+                case SPACE:
+                    movimiento = 3;
+                    break;
+            }
+        });
+        //Código para lla animación del juego
+        Timeline tiempoAnimacion = new Timeline(
+                new KeyFrame(Duration.seconds(0.01), (ActionEvent ae) -> {
+                    //grupoCuerpo.setLayoutX(20 += movimiento);
+                
+                })
         
-        
-        
+        );
+        tiempoAnimacion.setCycleCount(Timeline.INDEFINITE);
+        tiempoAnimacion.play();
     }
 
     public static void main(String[] args) {
