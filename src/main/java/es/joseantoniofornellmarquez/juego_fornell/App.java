@@ -104,10 +104,10 @@ int movimiento = 0;
         scene.setOnKeyPressed((KeyEvent event) -> {
             switch(event.getCode()){
                 case LEFT:
-                    movimiento = -3;
+                    movimiento += -3;
                     break;
                 case RIGHT:
-                    movimiento = 3;
+                    movimiento += 3;
                     break;
                 case SPACE:
                     movimiento = 3;
@@ -117,7 +117,8 @@ int movimiento = 0;
         //Código para lla animación del juego
         Timeline tiempoAnimacion = new Timeline(
                 new KeyFrame(Duration.seconds(0.01), (ActionEvent ae) -> {
-                    //grupoCuerpo.setLayoutX(20 += movimiento);
+                    
+                    grupoCuerpo.setLayoutX(20 + movimiento);
                 
                 })
         
