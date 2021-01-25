@@ -31,7 +31,14 @@ Pane root;
 //Variable para el grupo
 Group grupoCuerpo;
 //Velocidad del movimiento del personaje
-int movimiento = 0;
+int posicionPerro = 0;
+int movimientoFondo = 0;
+int movimientoFondo2 = 800;
+//Posicion inicial del personaje
+int posicionY = 470;
+int posicionX = 20;
+//Movimiento del personaje en salto
+int movimientoY = 0;
 
     @Override
     public void start(Stage stage) {
@@ -40,6 +47,7 @@ int movimiento = 0;
         scene.setFill(Color.BLACK);
         stage.setTitle("Casper Y Mia");
         stage.setScene(scene);
+        stage.setResizable(false);
         stage.show();
         //Fondo del juego
         Image fondo = new Image(getClass().getResourceAsStream("/images/fondo.png"));
@@ -47,7 +55,7 @@ int movimiento = 0;
         ImageView fondoVisto2 = new ImageView(fondo);
         fondoVisto.setLayoutX(0);
         fondoVisto.setLayoutY(0);
-        fondoVisto2.setLayoutX(ESCENA_TAM_Y);
+        fondoVisto2.setLayoutX(ESCENA_TAM_X);
         fondoVisto2.setLayoutY(0);
         root.getChildren().add(fondoVisto);
         root.getChildren().add(fondoVisto2);
@@ -96,32 +104,55 @@ int movimiento = 0;
         grupoCuerpo.getChildren().add(boca);
         grupoCuerpo.getChildren().add(ojo);
         //Colocación del personaje en la pantalla
-        grupoCuerpo.setLayoutX(20);
-        grupoCuerpo.setLayoutY(470);
+        grupoCuerpo.setLayoutX(posicionX);
+        grupoCuerpo.setLayoutY(posicionY);
         //Agrupar el cuerpo del personaje
         root.getChildren().add(grupoCuerpo);
         //Teclas para el movimiento del personaje
         scene.setOnKeyPressed((KeyEvent event) -> {
             switch(event.getCode()){
                 case LEFT:
-                    movimiento += -3;
+                    posicionPerro -= 5;
+                    movimientoFondo += 4;
+                    movimientoFondo2 += 4;
                     break;
                 case RIGHT:
-                    movimiento += 3;
+                    posicionPerro += 5;
+                    movimientoFondo -= 4;
+                    movimientoFondo2 -= 4;
                     break;
                 case SPACE:
-                    movimiento = 3;
+                    movimientoY = -5;
                     break;
             }
         });
         //Código para lla animación del juego
         Timeline tiempoAnimacion = new Timeline(
                 new KeyFrame(Duration.seconds(0.01), (ActionEvent ae) -> {
-                    
-                    grupoCuerpo.setLayoutX(20 + movimiento);
-                
+                   
+                    grupoCuerpo.setLayoutX(posicionPerro);
+                    fondoVisto.setLayoutX(movimientoFondo);
+                    fondoVisto2.setLayoutX(movimientoFondo2);
+                    if (movimientoFondo <= -ESCENA_TAM_X){
+                        movimientoFondo = ESCENA_TAM_X;
+                        fondoVisto.setLayoutX(movimientoFondo);
+                    }
+                    if (movimientoFondo2 <= -ESCENA_TAM_X){
+                        movimientoFondo2 = ESCENA_TAM_X;
+                        fondoVisto2.setLayoutX(movimientoFondo2);
+                    }
+                    posicionY += movimientoY;
+                    //Si ha llegado a arriba
+                    if (posicionY <= 350){
+                        movimientoY = +5;
+                    }
+                    //Si ha llegado al suelo
+                    if (posicionY >= 470){
+                        movimientoY = 0;
+                    }
+                    grupoCuerpo.setLayoutY(posicionY);
+                    System.out.println(posicionY);
                 })
-        
         );
         tiempoAnimacion.setCycleCount(Timeline.INDEFINITE);
         tiempoAnimacion.play();
