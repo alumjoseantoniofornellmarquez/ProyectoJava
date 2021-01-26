@@ -31,7 +31,7 @@ Pane root;
 //Variable para el grupo
 Group grupoCuerpo;
 //Velocidad del movimiento del personaje
-int posicionPerro = 0;
+int movimientoPerro = 0;
 int movimientoFondo = 0;
 int movimientoFondo2 = 800;
 //Posicion inicial del personaje
@@ -39,6 +39,11 @@ int posicionY = 470;
 int posicionX = 20;
 //Movimiento del personaje en salto
 int movimientoY = 0;
+//Contador 
+int contador = 0;
+//Enemigo
+int enemigoPosicionX = 830;
+int enemigoPosicionY = 830;
 
     @Override
     public void start(Stage stage) {
@@ -112,27 +117,60 @@ int movimientoY = 0;
         scene.setOnKeyPressed((KeyEvent event) -> {
             switch(event.getCode()){
                 case LEFT:
-                    posicionPerro -= 5;
-                    movimientoFondo += 4;
-                    movimientoFondo2 += 4;
+                    movimientoPerro = -5;
+                    if (posicionX <= 10){
+                        movimientoPerro = 0;
+                    }
+                    if (posicionX/5%2==0){
+                        rectPataDel.setRotate(-30);
+                        rectPataTra.setRotate(-30);
+                    }
+                    if (posicionX/5%2==1){
+                        rectPataDel.setRotate(30);
+                        rectPataTra.setRotate(30);
+                    }
                     break;
                 case RIGHT:
-                    posicionPerro += 5;
-                    movimientoFondo -= 4;
-                    movimientoFondo2 -= 4;
+                    if (posicionX/5%2==0){
+                        rectPataDel.setRotate(30);
+                        rectPataTra.setRotate(30);
+                    }
+                    if (posicionX/5%2==1){
+                        rectPataDel.setRotate(-30);
+                        rectPataTra.setRotate(-30);
+                    }
+                    movimientoPerro = 5;
+                    movimientoFondo -= 5;
+                    movimientoFondo2 -= 5;
+                    if (posicionX >= 500){
+                        movimientoPerro = 0;
+                        contador ++;
+                        if (contador%2==0){
+                            rectPataDel.setRotate(30);
+                            rectPataTra.setRotate(30);
+                        }
+                        if (contador%2==1){
+                            rectPataDel.setRotate(-30);
+                            rectPataTra.setRotate(-30);
+                        }
+                    }else
+                        contador = 0;
                     break;
                 case SPACE:
                     movimientoY = -5;
                     break;
             }
         });
+        scene.setOnKeyReleased((KeyEvent event) -> {
+            movimientoPerro = 0;
+            rectPataDel.setRotate(0);
+            rectPataTra.setRotate(0);
+        });
         //Código para lla animación del juego
         Timeline tiempoAnimacion = new Timeline(
                 new KeyFrame(Duration.seconds(0.01), (ActionEvent ae) -> {
                    
-                    grupoCuerpo.setLayoutX(posicionPerro);
-                    fondoVisto.setLayoutX(movimientoFondo);
-                    fondoVisto2.setLayoutX(movimientoFondo2);
+                    //Movimiento del fondo
                     if (movimientoFondo <= -ESCENA_TAM_X){
                         movimientoFondo = ESCENA_TAM_X;
                         fondoVisto.setLayoutX(movimientoFondo);
@@ -141,6 +179,7 @@ int movimientoY = 0;
                         movimientoFondo2 = ESCENA_TAM_X;
                         fondoVisto2.setLayoutX(movimientoFondo2);
                     }
+                    //Movimiento del salto
                     posicionY += movimientoY;
                     //Si ha llegado a arriba
                     if (posicionY <= 350){
@@ -150,8 +189,21 @@ int movimientoY = 0;
                     if (posicionY >= 470){
                         movimientoY = 0;
                     }
+                    //Movimiento del perro
+                    posicionX += movimientoPerro;
+                    if (posicionX <= 20){
+                        movimientoPerro = 0;
+                    }
+                    if (enemigoPosicionX/5%2==0){
+                    }
+                    if (enemigoPosicionX/5%2==1){
+                    }
+                    fondoVisto.setLayoutX(movimientoFondo);
+                    fondoVisto2.setLayoutX(movimientoFondo2);
+                    grupoCuerpo.setLayoutX(posicionX);
                     grupoCuerpo.setLayoutY(posicionY);
                     System.out.println(posicionY);
+                    System.out.println(posicionX);
                 })
         );
         tiempoAnimacion.setCycleCount(Timeline.INDEFINITE);
