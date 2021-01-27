@@ -1,5 +1,6 @@
 package es.joseantoniofornellmarquez.juego_fornell;
 
+import java.util.Random;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
@@ -42,8 +43,10 @@ int movimientoY = 0;
 //Contador 
 int contador = 0;
 //Enemigo
-int enemigoPosicionX = 830;
-int enemigoPosicionY = 830;
+int enemigoPosicionX;
+int enemigoPosicionY;
+//Objeto rando para las posiciones de los enemigos
+Random random = new Random();
 
     @Override
     public void start(Stage stage) {
@@ -64,6 +67,14 @@ int enemigoPosicionY = 830;
         fondoVisto2.setLayoutY(0);
         root.getChildren().add(fondoVisto);
         root.getChildren().add(fondoVisto2);
+        //Imagen de los enemigos
+        Image mosca1 = new Image(getClass().getResourceAsStream("/images/fly1.png"));
+        Image mosca2 = new Image(getClass().getResourceAsStream("/images/fly2.png"));
+        ImageView mosca = new ImageView();
+        root.getChildren().add(mosca);
+        //Posicion aletoria del enemigo
+        enemigoPosicionX = random.nextInt(100);
+        enemigoPosicionY = random.nextInt(100);
         //Cuerpo del personaje
         grupoCuerpo = new Group();
         Rectangle rectTorso = new Rectangle(0,0,80,30);
@@ -157,7 +168,7 @@ int enemigoPosicionY = 830;
                         contador = 0;
                     break;
                 case SPACE:
-                    movimientoY = -5;
+                    movimientoY = -10;
                     break;
             }
         });
@@ -182,8 +193,8 @@ int enemigoPosicionY = 830;
                     //Movimiento del salto
                     posicionY += movimientoY;
                     //Si ha llegado a arriba
-                    if (posicionY <= 350){
-                        movimientoY = +5;
+                    if (posicionY <= 300){
+                        movimientoY = +3;
                     }
                     //Si ha llegado al suelo
                     if (posicionY >= 470){
@@ -194,10 +205,16 @@ int enemigoPosicionY = 830;
                     if (posicionX <= 20){
                         movimientoPerro = 0;
                     }
+                    //Movimiento mosca
+                    mosca.setLayoutX(enemigoPosicionX+400);
+                    mosca.setLayoutY(enemigoPosicionY+320);
                     if (enemigoPosicionX/5%2==0){
+                        mosca.setImage(mosca1);
                     }
                     if (enemigoPosicionX/5%2==1){
+                        mosca.setImage(mosca2);
                     }
+                    
                     fondoVisto.setLayoutX(movimientoFondo);
                     fondoVisto2.setLayoutX(movimientoFondo2);
                     grupoCuerpo.setLayoutX(posicionX);
