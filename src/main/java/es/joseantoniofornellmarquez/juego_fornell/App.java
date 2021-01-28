@@ -33,6 +33,7 @@ Pane root;
 Group grupoCuerpo;
 //Velocidad del movimiento del personaje
 int movimientoPerro = 0;
+//Posicion del fondo
 int movimientoFondo = 0;
 int movimientoFondo2 = 800;
 //Posicion inicial del personaje
@@ -45,6 +46,8 @@ int contador = 0;
 //Enemigo
 int enemigoPosicionX;
 int enemigoPosicionY;
+//Velocidad de enemigo
+int velocidadMosca = -3;
 //Objeto rando para las posiciones de los enemigos
 Random random = new Random();
 
@@ -73,8 +76,8 @@ Random random = new Random();
         ImageView mosca = new ImageView();
         root.getChildren().add(mosca);
         //Posicion aletoria del enemigo
-        enemigoPosicionX = random.nextInt(100);
-        enemigoPosicionY = random.nextInt(100);
+        enemigoPosicionX = random.nextInt(100) + 800;
+        enemigoPosicionY = random.nextInt(100) + 400;
         //Cuerpo del personaje
         grupoCuerpo = new Group();
         Rectangle rectTorso = new Rectangle(0,0,80,30);
@@ -206,15 +209,21 @@ Random random = new Random();
                         movimientoPerro = 0;
                     }
                     //Movimiento mosca
-                    mosca.setLayoutX(enemigoPosicionX+400);
-                    mosca.setLayoutY(enemigoPosicionY+320);
+                    mosca.setLayoutX(enemigoPosicionX);
+                    mosca.setLayoutY(enemigoPosicionY);
+                    enemigoPosicionX += velocidadMosca;
                     if (enemigoPosicionX/5%2==0){
                         mosca.setImage(mosca1);
                     }
                     if (enemigoPosicionX/5%2==1){
                         mosca.setImage(mosca2);
                     }
-                    
+                    if (enemigoPosicionX <= -ESCENA_TAM_X){
+                        enemigoPosicionX = ESCENA_TAM_X;
+                        mosca.setLayoutX(enemigoPosicionX);
+                        enemigoPosicionX = random.nextInt(100) + 800;
+                        enemigoPosicionY = random.nextInt(100) + 400;
+                    }
                     fondoVisto.setLayoutX(movimientoFondo);
                     fondoVisto2.setLayoutX(movimientoFondo2);
                     grupoCuerpo.setLayoutX(posicionX);
