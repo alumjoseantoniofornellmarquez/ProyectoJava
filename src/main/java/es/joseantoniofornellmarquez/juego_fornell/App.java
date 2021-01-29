@@ -43,11 +43,16 @@ int posicionX = 20;
 int movimientoY = 0;
 //Contador 
 int contador = 0;
-//Enemigo
-int enemigoPosicionX;
-int enemigoPosicionY;
+//Enemigos
+int enemigoPosicionX1;
+int enemigoPosicionY1;
+int enemigoPosicionX2;
+int enemigoPosicionY2;
+int enemigoPosicionX3;
+int enemigoPosicionY3;
 //Velocidad de enemigo
 int velocidadMosca = -3;
+int velocidadPinchos = -1;
 //Objeto rando para las posiciones de los enemigos
 Random random = new Random();
 
@@ -71,13 +76,22 @@ Random random = new Random();
         root.getChildren().add(fondoVisto);
         root.getChildren().add(fondoVisto2);
         //Imagen de los enemigos
-        Image mosca1 = new Image(getClass().getResourceAsStream("/images/fly1.png"));
-        Image mosca2 = new Image(getClass().getResourceAsStream("/images/fly2.png"));
-        ImageView mosca = new ImageView();
-        root.getChildren().add(mosca);
+        Image moscaArriba = new Image(getClass().getResourceAsStream("/images/fly1.png"));
+        Image moscaAbajo = new Image(getClass().getResourceAsStream("/images/fly2.png"));
+        Image pinchos = new Image(getClass().getResourceAsStream("/images/pichos.png"));
+        ImageView mosca1 = new ImageView();
+        ImageView pinchos1 = new ImageView();
+        ImageView mosca3 = new ImageView();
+        root.getChildren().add(mosca1);
+        root.getChildren().add(pinchos1);
+        root.getChildren().add(mosca3);
         //Posicion aletoria del enemigo
-        enemigoPosicionX = random.nextInt(100) + 800;
-        enemigoPosicionY = random.nextInt(100) + 400;
+        enemigoPosicionX1 = random.nextInt(100) + 800;
+        enemigoPosicionY1 = random.nextInt(50) + 400;
+        enemigoPosicionX2 = random.nextInt(100) + 1500;
+        enemigoPosicionY2 = posicionY;
+        enemigoPosicionX3 = random.nextInt(100) + 2200;
+        enemigoPosicionY3 = random.nextInt(50) + 400;
         //Cuerpo del personaje
         grupoCuerpo = new Group();
         Rectangle rectTorso = new Rectangle(0,0,80,30);
@@ -208,21 +222,54 @@ Random random = new Random();
                     if (posicionX <= 20){
                         movimientoPerro = 0;
                     }
-                    //Movimiento mosca
-                    mosca.setLayoutX(enemigoPosicionX);
-                    mosca.setLayoutY(enemigoPosicionY);
-                    enemigoPosicionX += velocidadMosca;
-                    if (enemigoPosicionX/5%2==0){
-                        mosca.setImage(mosca1);
+                    //Movimiento moscas
+                    mosca1.setLayoutX(enemigoPosicionX1);
+                    mosca1.setLayoutY(enemigoPosicionY1);
+                    pinchos1.setLayoutX(enemigoPosicionX2);
+                    pinchos1.setLayoutY(enemigoPosicionY2);
+                    mosca3.setLayoutX(enemigoPosicionX3);
+                    mosca3.setLayoutY(enemigoPosicionY3);
+                    enemigoPosicionX1 += velocidadMosca;
+                    enemigoPosicionX2 += velocidadPinchos;
+                    enemigoPosicionX3 += velocidadMosca;
+                    if (enemigoPosicionX1/5%2==0){
+                        mosca1.setImage(moscaArriba);
+
                     }
-                    if (enemigoPosicionX/5%2==1){
-                        mosca.setImage(mosca2);
+                    if (enemigoPosicionX1/5%2==1){
+                        mosca1.setImage(moscaAbajo);
+
                     }
-                    if (enemigoPosicionX <= -ESCENA_TAM_X){
-                        enemigoPosicionX = ESCENA_TAM_X;
-                        mosca.setLayoutX(enemigoPosicionX);
-                        enemigoPosicionX = random.nextInt(100) + 800;
-                        enemigoPosicionY = random.nextInt(100) + 400;
+                    if (enemigoPosicionX1 <= -ESCENA_TAM_X){
+                        enemigoPosicionX1 = ESCENA_TAM_X;
+                        mosca1.setLayoutX(enemigoPosicionX1);
+                        enemigoPosicionX1 = random.nextInt(100) + 800;
+                        enemigoPosicionY1 = random.nextInt(50) + 400;
+                    }
+                    if (enemigoPosicionX2/5%2==0){
+                        pinchos1.setImage(pinchos);
+
+                    }
+                    if (enemigoPosicionX2/5%2==1){
+                        pinchos1.setImage(pinchos);
+                    }
+                    if (enemigoPosicionX2 <= -ESCENA_TAM_X){
+                        enemigoPosicionX2 = ESCENA_TAM_X;
+                        pinchos1.setLayoutX(enemigoPosicionX2);
+                        enemigoPosicionX2 = random.nextInt(100) + 1500;
+                        enemigoPosicionY2 = posicionY;
+                    }
+                    if (enemigoPosicionX3/5%2==0){
+                        mosca3.setImage(moscaArriba);
+                    }
+                    if (enemigoPosicionX3/5%2==1){
+                        mosca3.setImage(moscaAbajo);
+                    }
+                    if (enemigoPosicionX3 <= -ESCENA_TAM_X){
+                        enemigoPosicionX3 = ESCENA_TAM_X;
+                        mosca3.setLayoutX(enemigoPosicionX3);
+                        enemigoPosicionX3 = random.nextInt(100) + 2200;
+                        enemigoPosicionY3 = random.nextInt(50) + 400;
                     }
                     fondoVisto.setLayoutX(movimientoFondo);
                     fondoVisto2.setLayoutX(movimientoFondo2);
