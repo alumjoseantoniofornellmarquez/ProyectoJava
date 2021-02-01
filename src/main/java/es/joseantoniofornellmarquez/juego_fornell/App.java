@@ -39,7 +39,7 @@ int movimientoFondo2 = 800;
 //Posicion inicial del personaje
 int posicionY = 470;
 int posicionX = 20;
-//Movimiento del personaje en salto
+//Movimiento del personaje en el salto
 int movimientoY = 0;
 //Contador 
 int contador = 0;
