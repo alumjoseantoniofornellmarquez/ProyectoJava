@@ -13,6 +13,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Polyline;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -36,9 +37,14 @@ int movimientoPerro = 0;
 //Posicion del fondo
 int movimientoFondo = 0;
 int movimientoFondo2 = 800;
+//Variables del diseño del personaje
+Rectangle rectPataDel;
+Rectangle rectPataTra;
 //Posicion inicial del personaje
 int posicionY = 470;
 int posicionX = 20;
+//Variables para detectar las teclas
+boolean derecha = false;
 //Movimiento del personaje en el salto
 int movimientoY = 0;
 //Contador 
@@ -51,7 +57,7 @@ int enemigoPosicionY2;
 int enemigoPosicionX3;
 int enemigoPosicionY3;
 //Velocidad de enemigo
-int velocidadMosca = -3;
+int velocidadMosca = -2;
 int velocidadPinchos = -1;
 //Objeto rando para las posiciones de los enemigos
 Random random = new Random();
@@ -89,14 +95,153 @@ Random random = new Random();
         enemigoPosicionX1 = random.nextInt(100) + 800;
         enemigoPosicionY1 = random.nextInt(50) + 400;
         enemigoPosicionX2 = random.nextInt(100) + 1500;
-        enemigoPosicionY2 = posicionY;
+        enemigoPosicionY2 = 470;
         enemigoPosicionX3 = random.nextInt(100) + 2200;
         enemigoPosicionY3 = random.nextInt(50) + 400;
-        //Cuerpo del personaje
+        //Llamada al metodo del personaje
+        diseñoPersonaje();
+        //Teclas para el movimiento del personaje
+        scene.setOnKeyPressed((KeyEvent event) -> {
+            switch(event.getCode()){
+                case LEFT:
+                    movimientoPerro = -5;
+                    if (posicionX <= 10){
+                        movimientoPerro = 0;
+                    }
+                    if (posicionX/5%2==0){
+                        rectPataDel.setRotate(-30);
+                        rectPataTra.setRotate(-30);
+                    }
+                    if (posicionX/5%2==1){
+                        rectPataDel.setRotate(30);
+                        rectPataTra.setRotate(30);
+                    }
+                    break;
+                case RIGHT:
+                    if (posicionX/5%2==0){
+                        rectPataDel.setRotate(30);
+                        rectPataTra.setRotate(30);
+                    }
+                    if (posicionX/5%2==1){
+                        rectPataDel.setRotate(-30);
+                        rectPataTra.setRotate(-30);
+                    }
+                    movimientoPerro = 5;
+                    movimientoFondo -= 5;
+                    movimientoFondo2 -= 5;
+                    derecha = true;
+                    break;
+                case SPACE:
+                    movimientoY = -10;
+
+                    break;
+                case ESCAPE:
+                    reinicioJuego();
+                    break;
+            }
+        });
+        scene.setOnKeyReleased((KeyEvent event) -> {
+            movimientoPerro = 0;
+            rectPataDel.setRotate(0);
+            rectPataTra.setRotate(0);
+            derecha = false;
+        });
+        //Código para lla animación del juego
+        Timeline tiempoAnimacion = new Timeline(
+                new KeyFrame(Duration.seconds(0.01), (ActionEvent ae) -> {
+                   
+                    //Movimiento del fondo
+                    if (movimientoFondo <= -ESCENA_TAM_X){
+                        movimientoFondo = ESCENA_TAM_X;
+                        fondoVisto.setLayoutX(movimientoFondo);
+                    }
+                    if (movimientoFondo2 <= -ESCENA_TAM_X){
+                        movimientoFondo2 = ESCENA_TAM_X;
+                        fondoVisto2.setLayoutX(movimientoFondo2);
+                    }
+                    //Movimiento del salto
+                    posicionY += movimientoY;
+                    //Si ha llegado a arriba
+                    if (posicionY <= 300){
+                        movimientoY = +3;
+                    }
+                    //Si ha llegado al suelo
+                    if (posicionY >= 470){
+                        movimientoY = 0;
+                    }
+                    //Movimiento del perro
+                    posicionX += movimientoPerro;
+                    if (posicionX <= 20){
+                        movimientoPerro = 0;
+                    }
+                    limiteMovimiento();
+                    //Movimiento moscas
+                    mosca1.setLayoutX(enemigoPosicionX1);
+                    mosca1.setLayoutY(enemigoPosicionY1);
+                    pinchos1.setLayoutX(enemigoPosicionX2);
+                    pinchos1.setLayoutY(enemigoPosicionY2);
+                    mosca3.setLayoutX(enemigoPosicionX3);
+                    mosca3.setLayoutY(enemigoPosicionY3);
+                    enemigoPosicionX1 += velocidadMosca;
+                    enemigoPosicionX2 += velocidadPinchos;
+                    enemigoPosicionX3 += velocidadMosca;
+                    if (enemigoPosicionX1/5%2==0){
+                        mosca1.setImage(moscaArriba);
+
+                    }
+                    if (enemigoPosicionX1/5%2==1){
+                        mosca1.setImage(moscaAbajo);
+
+                    }
+                    if (enemigoPosicionX1 <= -ESCENA_TAM_X){
+                        enemigoPosicionX1 = ESCENA_TAM_X;
+                        mosca1.setLayoutX(enemigoPosicionX1);
+                        enemigoPosicionX1 = random.nextInt(100) + 800;
+                        enemigoPosicionY1 = random.nextInt(50) + 400;
+                    }
+                    if (enemigoPosicionX2/5%2==0){
+                        pinchos1.setImage(pinchos);
+
+                    }
+                    if (enemigoPosicionX2/5%2==1){
+                        pinchos1.setImage(pinchos);
+                    }
+                    if (enemigoPosicionX2 <= -ESCENA_TAM_X){
+                        enemigoPosicionX2 = ESCENA_TAM_X;
+                        pinchos1.setLayoutX(enemigoPosicionX2);
+                        enemigoPosicionX2 = random.nextInt(100) + 1500;
+                        enemigoPosicionY2 = 470;
+                    }
+                    if (enemigoPosicionX3/5%2==0){
+                        mosca3.setImage(moscaArriba);
+                    }
+                    if (enemigoPosicionX3/5%2==1){
+                        mosca3.setImage(moscaAbajo);
+                    }
+                    if (enemigoPosicionX3 <= -ESCENA_TAM_X){
+                        enemigoPosicionX3 = ESCENA_TAM_X;
+                        mosca3.setLayoutX(enemigoPosicionX3);
+                        enemigoPosicionX3 = random.nextInt(100) + 2200;
+                        enemigoPosicionY3 = random.nextInt(50) + 400;
+                    }
+                    fondoVisto.setLayoutX(movimientoFondo);
+                    fondoVisto2.setLayoutX(movimientoFondo2);
+                    grupoCuerpo.setLayoutX(posicionX);
+                    grupoCuerpo.setLayoutY(posicionY);
+                    System.out.println(posicionY);
+                    System.out.println(posicionX);
+                })
+        );
+        tiempoAnimacion.setCycleCount(Timeline.INDEFINITE);
+        tiempoAnimacion.play();
+    }
+    //Metodo para el codigo del diseño del personaje
+    public void diseñoPersonaje(){
+    //Cuerpo del personaje
         grupoCuerpo = new Group();
         Rectangle rectTorso = new Rectangle(0,0,80,30);
-        Rectangle rectPataDel = new Rectangle(60,20,10,30);
-        Rectangle rectPataTra = new Rectangle(10,20,10,30);
+        rectPataDel = new Rectangle(60,20,10,30);
+        rectPataTra = new Rectangle(10,20,10,30);
         Rectangle cola = new Rectangle(-5,-10,5,20);
         Circle cabeza = new Circle(80,5,17);
         Rectangle orejas = new Rectangle (65,-20,15,20);
@@ -141,148 +286,59 @@ Random random = new Random();
         grupoCuerpo.setLayoutY(posicionY);
         //Agrupar el cuerpo del personaje
         root.getChildren().add(grupoCuerpo);
-        //Teclas para el movimiento del personaje
-        scene.setOnKeyPressed((KeyEvent event) -> {
-            switch(event.getCode()){
-                case LEFT:
-                    movimientoPerro = -5;
-                    if (posicionX <= 10){
-                        movimientoPerro = 0;
-                    }
-                    if (posicionX/5%2==0){
-                        rectPataDel.setRotate(-30);
-                        rectPataTra.setRotate(-30);
-                    }
-                    if (posicionX/5%2==1){
-                        rectPataDel.setRotate(30);
-                        rectPataTra.setRotate(30);
-                    }
-                    break;
-                case RIGHT:
-                    if (posicionX/5%2==0){
-                        rectPataDel.setRotate(30);
-                        rectPataTra.setRotate(30);
-                    }
-                    if (posicionX/5%2==1){
-                        rectPataDel.setRotate(-30);
-                        rectPataTra.setRotate(-30);
-                    }
-                    movimientoPerro = 5;
-                    movimientoFondo -= 5;
-                    movimientoFondo2 -= 5;
-                    if (posicionX >= 500){
-                        movimientoPerro = 0;
-                        contador ++;
-                        if (contador%2==0){
-                            rectPataDel.setRotate(30);
-                            rectPataTra.setRotate(30);
-                        }
-                        if (contador%2==1){
-                            rectPataDel.setRotate(-30);
-                            rectPataTra.setRotate(-30);
-                        }
-                    }else
-                        contador = 0;
-                    break;
-                case SPACE:
-                    movimientoY = -10;
-                    break;
-            }
+        //Polilinea para la zona de contacto
+        Polyline contactoPerro = new Polyline();
+        contactoPerro.getPoints().addAll(new Double[]{
+           8.0, 11.0,
+           22.0, 20.0,
+           79.0, 19.0,
+           80.0, 0.0,
+           95.0, 0.0,
+           95.0, 7.0,
+           107.0, 13.0,
+           113.0, 30.0,
+           116.0, 36.0,
+           106.0, 45.0,
+           95.0, 43.0,
+           86.0, 51.0,
+           86.0, 70.0,
+           75.0, 70.0,
+           75.0, 51.0,
+           35.0, 51.0,
+           35.0, 70.0,
+           25.0, 70.0,
+           25.0, 50.0,
+           16.0, 44.0,
+           15.0, 28.0,
         });
-        scene.setOnKeyReleased((KeyEvent event) -> {
-            movimientoPerro = 0;
-            rectPataDel.setRotate(0);
-            rectPataTra.setRotate(0);
-        });
-        //Código para lla animación del juego
-        Timeline tiempoAnimacion = new Timeline(
-                new KeyFrame(Duration.seconds(0.01), (ActionEvent ae) -> {
-                   
-                    //Movimiento del fondo
-                    if (movimientoFondo <= -ESCENA_TAM_X){
-                        movimientoFondo = ESCENA_TAM_X;
-                        fondoVisto.setLayoutX(movimientoFondo);
-                    }
-                    if (movimientoFondo2 <= -ESCENA_TAM_X){
-                        movimientoFondo2 = ESCENA_TAM_X;
-                        fondoVisto2.setLayoutX(movimientoFondo2);
-                    }
-                    //Movimiento del salto
-                    posicionY += movimientoY;
-                    //Si ha llegado a arriba
-                    if (posicionY <= 300){
-                        movimientoY = +3;
-                    }
-                    //Si ha llegado al suelo
-                    if (posicionY >= 470){
-                        movimientoY = 0;
-                    }
-                    //Movimiento del perro
-                    posicionX += movimientoPerro;
-                    if (posicionX <= 20){
-                        movimientoPerro = 0;
-                    }
-                    //Movimiento moscas
-                    mosca1.setLayoutX(enemigoPosicionX1);
-                    mosca1.setLayoutY(enemigoPosicionY1);
-                    pinchos1.setLayoutX(enemigoPosicionX2);
-                    pinchos1.setLayoutY(enemigoPosicionY2);
-                    mosca3.setLayoutX(enemigoPosicionX3);
-                    mosca3.setLayoutY(enemigoPosicionY3);
-                    enemigoPosicionX1 += velocidadMosca;
-                    enemigoPosicionX2 += velocidadPinchos;
-                    enemigoPosicionX3 += velocidadMosca;
-                    if (enemigoPosicionX1/5%2==0){
-                        mosca1.setImage(moscaArriba);
-
-                    }
-                    if (enemigoPosicionX1/5%2==1){
-                        mosca1.setImage(moscaAbajo);
-
-                    }
-                    if (enemigoPosicionX1 <= -ESCENA_TAM_X){
-                        enemigoPosicionX1 = ESCENA_TAM_X;
-                        mosca1.setLayoutX(enemigoPosicionX1);
-                        enemigoPosicionX1 = random.nextInt(100) + 800;
-                        enemigoPosicionY1 = random.nextInt(50) + 400;
-                    }
-                    if (enemigoPosicionX2/5%2==0){
-                        pinchos1.setImage(pinchos);
-
-                    }
-                    if (enemigoPosicionX2/5%2==1){
-                        pinchos1.setImage(pinchos);
-                    }
-                    if (enemigoPosicionX2 <= -ESCENA_TAM_X){
-                        enemigoPosicionX2 = ESCENA_TAM_X;
-                        pinchos1.setLayoutX(enemigoPosicionX2);
-                        enemigoPosicionX2 = random.nextInt(100) + 1500;
-                        enemigoPosicionY2 = posicionY;
-                    }
-                    if (enemigoPosicionX3/5%2==0){
-                        mosca3.setImage(moscaArriba);
-                    }
-                    if (enemigoPosicionX3/5%2==1){
-                        mosca3.setImage(moscaAbajo);
-                    }
-                    if (enemigoPosicionX3 <= -ESCENA_TAM_X){
-                        enemigoPosicionX3 = ESCENA_TAM_X;
-                        mosca3.setLayoutX(enemigoPosicionX3);
-                        enemigoPosicionX3 = random.nextInt(100) + 2200;
-                        enemigoPosicionY3 = random.nextInt(50) + 400;
-                    }
-                    fondoVisto.setLayoutX(movimientoFondo);
-                    fondoVisto2.setLayoutX(movimientoFondo2);
-                    grupoCuerpo.setLayoutX(posicionX);
-                    grupoCuerpo.setLayoutY(posicionY);
-                    System.out.println(posicionY);
-                    System.out.println(posicionX);
-                })
-        );
-        tiempoAnimacion.setCycleCount(Timeline.INDEFINITE);
-        tiempoAnimacion.play();
+        contactoPerro.setFill(Color.RED);
+        
     }
-
+    //Metodo para el reinicio del juego
+    public void reinicioJuego(){
+    
+    }
+    //Metodo para el limite de movimiento del personaje en la pantalla
+    public void limiteMovimiento(){
+    if (posicionX >= 500 && derecha == true){
+        posicionX = 500;
+        movimientoPerro = 0;
+        contador ++;
+        if (contador%2==0){
+            rectPataDel.setRotate(30);
+            rectPataTra.setRotate(30);
+        }
+        if (contador%2==1){
+            rectPataDel.setRotate(-30);
+            rectPataTra.setRotate(-30);
+        }
+        }else
+            contador = 0;
+    }
+    //Metodo para detectar colisiones
+    public void colisiones(){
+    
+    }
     public static void main(String[] args) {
         launch();
     }
