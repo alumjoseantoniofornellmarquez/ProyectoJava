@@ -15,6 +15,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polyline;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Shape;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -30,8 +31,20 @@ final int ESCENA_TAM_Y = 600;
 //Variables del juego
 //Variable root
 Pane root;
+//Variables polilineas
+Polyline contactoMosca;
+Polyline contactoPerro;
+Polyline contactoPinchos;
+Polyline contactoMosca3;
 //Variable para el grupo
 Group grupoCuerpo;
+Group grupoContactoPerro;
+Group grupoContactoMosca;
+Group grupoContactoMosca3;
+Group grupoContactoPinchos;
+boolean visible= true;
+//Variables para las colisiones
+int colisionMosca1;
 //Velocidad del movimiento del personaje
 int movimientoPerro = 0;
 //Posicion del fondo
@@ -56,6 +69,10 @@ int enemigoPosicionX2;
 int enemigoPosicionY2;
 int enemigoPosicionX3;
 int enemigoPosicionY3;
+//Variables para la imagen de los enemigos
+ImageView mosca1;
+ImageView pinchos1;
+ImageView mosca3;
 //Velocidad de enemigo
 int velocidadMosca = -2;
 int velocidadPinchos = -1;
@@ -85,9 +102,9 @@ Random random = new Random();
         Image moscaArriba = new Image(getClass().getResourceAsStream("/images/fly1.png"));
         Image moscaAbajo = new Image(getClass().getResourceAsStream("/images/fly2.png"));
         Image pinchos = new Image(getClass().getResourceAsStream("/images/pichos.png"));
-        ImageView mosca1 = new ImageView();
-        ImageView pinchos1 = new ImageView();
-        ImageView mosca3 = new ImageView();
+        mosca1 = new ImageView();
+        pinchos1 = new ImageView();
+        mosca3 = new ImageView();
         root.getChildren().add(mosca1);
         root.getChildren().add(pinchos1);
         root.getChildren().add(mosca3);
@@ -176,12 +193,12 @@ Random random = new Random();
                     }
                     limiteMovimiento();
                     //Movimiento moscas
-                    mosca1.setLayoutX(enemigoPosicionX1);
-                    mosca1.setLayoutY(enemigoPosicionY1);
-                    pinchos1.setLayoutX(enemigoPosicionX2);
-                    pinchos1.setLayoutY(enemigoPosicionY2);
-                    mosca3.setLayoutX(enemigoPosicionX3);
-                    mosca3.setLayoutY(enemigoPosicionY3);
+                    grupoContactoMosca.setLayoutX(enemigoPosicionX1);
+                    grupoContactoMosca.setLayoutY(enemigoPosicionY1);
+                    grupoContactoPinchos.setLayoutX(enemigoPosicionX2);
+                    grupoContactoPinchos.setLayoutY(enemigoPosicionY2);
+                    grupoContactoMosca3.setLayoutX(enemigoPosicionX3);
+                    grupoContactoMosca3.setLayoutY(enemigoPosicionY3);
                     enemigoPosicionX1 += velocidadMosca;
                     enemigoPosicionX2 += velocidadPinchos;
                     enemigoPosicionX3 += velocidadMosca;
@@ -195,7 +212,7 @@ Random random = new Random();
                     }
                     if (enemigoPosicionX1 <= -ESCENA_TAM_X){
                         enemigoPosicionX1 = ESCENA_TAM_X;
-                        mosca1.setLayoutX(enemigoPosicionX1);
+                        grupoContactoMosca.setLayoutX(enemigoPosicionX1);
                         enemigoPosicionX1 = random.nextInt(100) + 800;
                         enemigoPosicionY1 = random.nextInt(50) + 400;
                     }
@@ -208,7 +225,7 @@ Random random = new Random();
                     }
                     if (enemigoPosicionX2 <= -ESCENA_TAM_X){
                         enemigoPosicionX2 = ESCENA_TAM_X;
-                        pinchos1.setLayoutX(enemigoPosicionX2);
+                        grupoContactoPinchos.setLayoutX(enemigoPosicionX2);
                         enemigoPosicionX2 = random.nextInt(100) + 1500;
                         enemigoPosicionY2 = 470;
                     }
@@ -220,22 +237,23 @@ Random random = new Random();
                     }
                     if (enemigoPosicionX3 <= -ESCENA_TAM_X){
                         enemigoPosicionX3 = ESCENA_TAM_X;
-                        mosca3.setLayoutX(enemigoPosicionX3);
+                        grupoContactoMosca3.setLayoutX(enemigoPosicionX3);
                         enemigoPosicionX3 = random.nextInt(100) + 2200;
                         enemigoPosicionY3 = random.nextInt(50) + 400;
                     }
                     fondoVisto.setLayoutX(movimientoFondo);
                     fondoVisto2.setLayoutX(movimientoFondo2);
-                    grupoCuerpo.setLayoutX(posicionX);
-                    grupoCuerpo.setLayoutY(posicionY);
+                    grupoContactoPerro.setLayoutY(posicionY);
+                    grupoContactoPerro.setLayoutX(posicionX);
                     System.out.println(posicionY);
                     System.out.println(posicionX);
+                    Shape colisionMosca = Shape.intersect(contactoPerro, contactoMosca);
                 })
         );
         tiempoAnimacion.setCycleCount(Timeline.INDEFINITE);
         tiempoAnimacion.play();
     }
-    //Metodo para el codigo del diseño del personaje
+    //Metodo para el codigo del diseño del personaje y los enemigos
     public void diseñoPersonaje(){
     //Cuerpo del personaje
         grupoCuerpo = new Group();
@@ -281,41 +299,108 @@ Random random = new Random();
         grupoCuerpo.getChildren().add(orejas);
         grupoCuerpo.getChildren().add(boca);
         grupoCuerpo.getChildren().add(ojo);
-        //Colocación del personaje en la pantalla
-        grupoCuerpo.setLayoutX(posicionX);
-        grupoCuerpo.setLayoutY(posicionY);
-        //Agrupar el cuerpo del personaje
-        root.getChildren().add(grupoCuerpo);
-        //Polilinea para la zona de contacto
-        Polyline contactoPerro = new Polyline();
+        //Polilinea para la zona de contacto en el perro
+        contactoPerro = new Polyline();
         contactoPerro.getPoints().addAll(new Double[]{
-           8.0, 11.0,
-           22.0, 20.0,
-           79.0, 19.0,
-           80.0, 0.0,
-           95.0, 0.0,
-           95.0, 7.0,
-           107.0, 13.0,
-           113.0, 30.0,
-           116.0, 36.0,
-           106.0, 45.0,
-           95.0, 43.0,
-           86.0, 51.0,
-           86.0, 70.0,
-           75.0, 70.0,
-           75.0, 51.0,
-           35.0, 51.0,
-           35.0, 70.0,
-           25.0, 70.0,
-           25.0, 50.0,
-           16.0, 44.0,
-           15.0, 28.0,
+           -7.0, -9.0,
+           7.0, 0.0,
+           64.0, -1.0,
+           65.0, -20.0,
+           80.0, -20.0,
+           80.0, -8.0,
+           92.0, -7.0,
+           98.0, 10.0,
+           101.0, 16.0,
+           91.0, 25.0,
+           80.0, 23.0,
+           71.0, 31.0,
+           71.0, 50.0,
+           60.0, 50.0,
+           60.0, 31.0,
+           20.0, 31.0,
+           20.0, 50.0,
+           10.0, 50.0,
+           10.0, 30.0,
+           1.0, 24.0,
+           0.0, 8.0,
         });
         contactoPerro.setFill(Color.RED);
-        
+        contactoPerro.setVisible(visible);
+        grupoContactoPerro = new Group();
+        grupoContactoPerro.getChildren().add(contactoPerro);
+        grupoContactoPerro.getChildren().add(grupoCuerpo);
+        grupoContactoPerro.setLayoutX(posicionX);
+        grupoContactoPerro.setLayoutY(posicionY);
+        root.getChildren().add(grupoContactoPerro);
+        //Polilinea para la zona de contacto en la mosca1
+        contactoMosca = new Polyline();
+        contactoMosca.getPoints().addAll(new Double[]{
+            12.0, 22.0,
+            27.0, 12.0,
+            54.0, 14.0,
+            66.0, 30.0,
+            64.0, 48.0,
+            42.0, 56.0,
+            17.0, 50.0,
+            9.0, 40.0,
+            2.0, 34.0,
+            7.0, 23.0,
+        });
+        contactoMosca.setFill(Color.RED);
+        contactoMosca.setVisible(visible);
+        grupoContactoMosca = new Group();
+        grupoContactoMosca.getChildren().add(contactoMosca);
+        grupoContactoMosca.getChildren().add(mosca1);
+        root.getChildren().add(grupoContactoMosca);
+        //Polilinea para la zona de contacto en la mosca3
+        contactoMosca3 = new Polyline();
+        contactoMosca3.getPoints().addAll(new Double[]{
+            12.0, 22.0,
+            27.0, 12.0,
+            54.0, 14.0,
+            66.0, 30.0,
+            64.0, 48.0,
+            42.0, 56.0,
+            17.0, 50.0,
+            9.0, 40.0,
+            2.0, 34.0,
+            7.0, 23.0,
+        });
+        contactoMosca3.setFill(Color.RED);
+        contactoMosca3.setVisible(visible);
+        grupoContactoMosca3 = new Group();
+        grupoContactoMosca3.getChildren().add(contactoMosca3);
+        grupoContactoMosca3.getChildren().add(mosca3);
+        root.getChildren().add(grupoContactoMosca3);
+        //Polilinea para la zona de contacto en el pinchos
+        contactoPinchos = new Polyline();
+        contactoPinchos.getPoints().addAll(new Double[]{
+            4.0, 15.0,
+            22.0, 19.0,
+            35.0, 0.0,
+            45.0, 18.0,
+            65.0, 15.0,
+            62.0, 30.0,
+            68.0, 48.0,
+            62.0, 68.0,
+            7.0, 68.0,
+            2.0, 50.0,
+            6.0, 31.0,
+        });
+        contactoPinchos.setFill(Color.RED);
+        contactoPinchos.setVisible(visible);
+        grupoContactoPinchos = new Group();
+        grupoContactoPinchos.getChildren().add(contactoPinchos);
+        grupoContactoPinchos.getChildren().add(pinchos1);
+        root.getChildren().add(grupoContactoPinchos);
     }
     //Metodo para el reinicio del juego
     public void reinicioJuego(){
+    
+    }
+    //Metodo para las colisiones
+    public void getColisionesMosca1 (Polyline contactoPerro, Polyline contactoMosca){
+        //colisionMosca1 = getColisionesMosca1(contactoPerro,contactoMosca);
     
     }
     //Metodo para el limite de movimiento del personaje en la pantalla
