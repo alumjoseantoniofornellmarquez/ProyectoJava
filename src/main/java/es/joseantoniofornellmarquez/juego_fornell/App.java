@@ -5,17 +5,21 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
+import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polyline;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -42,9 +46,10 @@ Group grupoContactoPerro;
 Group grupoContactoMosca;
 Group grupoContactoMosca3;
 Group grupoContactoPinchos;
-boolean visible= true;
+boolean visible= false;
 //Variables para las colisiones
-int colisionMosca1;
+//Shape colisionMosca;
+//int colisionMosca1;
 //Velocidad del movimiento del personaje
 int movimientoPerro = 0;
 //Posicion del fondo
@@ -78,9 +83,12 @@ int velocidadMosca = -2;
 int velocidadPinchos = -1;
 //Objeto rando para las posiciones de los enemigos
 Random random = new Random();
+//Variable tamaño textos
+final int TEXT_SIZE = 24;
 
     @Override
     public void start(Stage stage) {
+        //Panel donde se va motras todo el juego
         root = new Pane();
         Scene scene = new Scene(root, ESCENA_TAM_X, ESCENA_TAM_Y);
         scene.setFill(Color.BLACK);
@@ -117,6 +125,43 @@ Random random = new Random();
         enemigoPosicionY3 = random.nextInt(50) + 400;
         //Llamada al metodo del personaje
         diseñoPersonaje();
+        //Textos y información que se vera en pantalla
+        //Layout principal
+        HBox puntuacion = new HBox();
+        puntuacion.setTranslateY(20);
+        puntuacion.setMinWidth(ESCENA_TAM_X);
+        puntuacion.setAlignment(Pos.CENTER);
+        puntuacion.setSpacing(100);
+        root.getChildren().add(puntuacion);
+        //Layout para puntuación actual
+        HBox puntuacionActual = new HBox();
+        puntuacionActual.setSpacing(10);
+        puntuacion.getChildren().add(puntuacionActual);
+        //Layout para puntuación máxima
+        HBox puntuacionMaxima = new HBox();
+        puntuacionMaxima.setSpacing(10);
+        puntuacion.getChildren().add(puntuacionMaxima);
+        //Texto de etiqueta para la puntuación
+        Text textTitleScore = new Text("Puntos:");
+        textTitleScore.setFont(Font.font(TEXT_SIZE));
+        textTitleScore.setFill(Color.BLACK);
+        //Texto para la puntuación
+        Text textScore = new Text("0");
+        textScore.setFont(Font.font(TEXT_SIZE));
+        textScore.setFill(Color.BLACK);
+        //Texto para la etiqueta de la puntuación máxima
+        Text textTitleHighScore = new Text("Puntuación Maxima:");
+        textTitleHighScore.setFont(Font.font(TEXT_SIZE));
+        textTitleHighScore.setFill(Color.BLACK);
+        //Texto para la puntuación máxima
+        Text textHighScore = new Text("0");
+        textHighScore.setFont(Font.font(TEXT_SIZE));
+        textHighScore.setFill(Color.BLACK);
+        //Añadimos los textos a los layouts reservados para ellos
+        puntuacionActual.getChildren().add(textTitleScore);
+        puntuacionActual.getChildren().add(textScore);
+        puntuacionMaxima.getChildren().add(textTitleHighScore);
+        puntuacionMaxima.getChildren().add(textHighScore);
         //Teclas para el movimiento del personaje
         scene.setOnKeyPressed((KeyEvent event) -> {
             switch(event.getCode()){
@@ -247,7 +292,7 @@ Random random = new Random();
                     grupoContactoPerro.setLayoutX(posicionX);
                     System.out.println(posicionY);
                     System.out.println(posicionX);
-                    Shape colisionMosca = Shape.intersect(contactoPerro, contactoMosca);
+                    
                 })
         );
         tiempoAnimacion.setCycleCount(Timeline.INDEFINITE);
@@ -399,9 +444,15 @@ Random random = new Random();
     
     }
     //Metodo para las colisiones
-    public void getColisionesMosca1 (Polyline contactoPerro, Polyline contactoMosca){
-        //colisionMosca1 = getColisionesMosca1(contactoPerro,contactoMosca);
-    
+    public void getColisiones(){
+        
+        Shape colisionMosca = Shape.intersect(contactoPerro, contactoMosca);
+        boolean colisionVacia1 = colisionMosca.getBoundsInLocal().isEmpty();
+        Shape colisionMosca3 = Shape.intersect(contactoPerro, contactoMosca3);
+        boolean colisionVacia2 = colisionMosca3.getBoundsInLocal().isEmpty();
+        Shape colisionPinchos = Shape.intersect(contactoPerro, contactoPinchos);
+        boolean colisionVacia3 = colisionPinchos.getBoundsInLocal().isEmpty();
+        
     }
     //Metodo para el limite de movimiento del personaje en la pantalla
     public void limiteMovimiento(){
