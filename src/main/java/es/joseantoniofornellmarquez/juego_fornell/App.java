@@ -35,21 +35,24 @@ final int ESCENA_TAM_Y = 600;
 //Variables del juego
 //Variable root
 Pane root;
-//Variables polilineas
+//Variables polilineas y rectangulo
 Polyline contactoMosca;
 Polyline contactoPerro;
 Polyline contactoPinchos;
 Polyline contactoMosca3;
+Rectangle contactoHueso;
 //Variable para el grupo
 Group grupoCuerpo;
 Group grupoContactoPerro;
 Group grupoContactoMosca;
 Group grupoContactoMosca3;
 Group grupoContactoPinchos;
+Group grupoContactoHueso;
 boolean visible= false;
 //Variables para las colisiones
-//Shape colisionMosca;
-//int colisionMosca1;
+boolean colisionVacia1;
+boolean colisionVacia2;
+boolean colisionVacia3;
 //Velocidad del movimiento del personaje
 int movimientoPerro = 0;
 //Posicion del fondo
@@ -74,10 +77,11 @@ int enemigoPosicionX2;
 int enemigoPosicionY2;
 int enemigoPosicionX3;
 int enemigoPosicionY3;
-//Variables para la imagen de los enemigos
+//Variables para la imagen de los enemigos y hueso
 ImageView mosca1;
 ImageView pinchos1;
 ImageView mosca3;
+ImageView femur;
 //Velocidad de enemigo
 int velocidadMosca = -2;
 int velocidadPinchos = -1;
@@ -85,7 +89,16 @@ int velocidadPinchos = -1;
 Random random = new Random();
 //Variable tamaño textos
 final int TEXT_SIZE = 24;
-
+//Puntuación
+int score = 0;
+//Texto para la puntuación
+Text textScore;
+//TextoVidas
+Text textCantidaVidas;
+int vidas = 3;
+//Texto maximo puntos
+Text textHighScore;
+int maxscore = 0;
     @Override
     public void start(Stage stage) {
         //Panel donde se va motras todo el juego
@@ -106,16 +119,19 @@ final int TEXT_SIZE = 24;
         fondoVisto2.setLayoutY(0);
         root.getChildren().add(fondoVisto);
         root.getChildren().add(fondoVisto2);
-        //Imagen de los enemigos
+        //Imagen de los enemigos y hueso
         Image moscaArriba = new Image(getClass().getResourceAsStream("/images/fly1.png"));
         Image moscaAbajo = new Image(getClass().getResourceAsStream("/images/fly2.png"));
         Image pinchos = new Image(getClass().getResourceAsStream("/images/pichos.png"));
+        Image hueso = new Image(getClass().getResourceAsStream("/images/femur.png"));
         mosca1 = new ImageView();
         pinchos1 = new ImageView();
         mosca3 = new ImageView();
+        femur = new ImageView();
         root.getChildren().add(mosca1);
         root.getChildren().add(pinchos1);
         root.getChildren().add(mosca3);
+        root.getChildren().add(femur);
         //Posicion aletoria del enemigo
         enemigoPosicionX1 = random.nextInt(100) + 800;
         enemigoPosicionY1 = random.nextInt(50) + 400;
@@ -255,9 +271,12 @@ final int TEXT_SIZE = 24;
                     fondoVisto2.setLayoutX(movimientoFondo2);
                     grupoContactoPerro.setLayoutY(posicionY);
                     grupoContactoPerro.setLayoutX(posicionX);
+                    grupoContactoHueso.setLayoutY(posicionY);
+                    grupoContactoHueso.setLayoutX(posicionX);
                     System.out.println(posicionY);
                     System.out.println(posicionX);
-                    
+                    //Metodo que controla las colisiones y la puntuación
+                    getColisiones();
                 })
         );
         tiempoAnimacion.setCycleCount(Timeline.INDEFINITE);
@@ -285,7 +304,7 @@ final int TEXT_SIZE = 24;
         textTitleScore.setFont(Font.font(TEXT_SIZE));
         textTitleScore.setFill(Color.BLACK);
         //Texto para la puntuación
-        Text textScore = new Text("0");
+        textScore = new Text("0");
         textScore.setFont(Font.font(TEXT_SIZE));
         textScore.setFill(Color.BLACK);
         //Texto para la etiqueta de la puntuación máxima
@@ -293,7 +312,7 @@ final int TEXT_SIZE = 24;
         textTitleHighScore.setFont(Font.font(TEXT_SIZE));
         textTitleHighScore.setFill(Color.BLACK);
         //Texto para la puntuación máxima
-        Text textHighScore = new Text("0");
+        textHighScore = new Text("0");
         textHighScore.setFont(Font.font(TEXT_SIZE));
         textHighScore.setFill(Color.BLACK);
         //Añadimos los textos a los layouts reservados para ellos
@@ -302,26 +321,26 @@ final int TEXT_SIZE = 24;
         puntuacionMaxima.getChildren().add(textTitleHighScore);
         puntuacionMaxima.getChildren().add(textHighScore);
         //Layout para las vidas
-        HBox vidas = new HBox();
-        vidas.setMinWidth(ESCENA_TAM_X);
-        vidas.setAlignment(Pos.TOP_LEFT);
-        vidas.setSpacing(20);
-        root.getChildren().add(vidas);
+        HBox cajaVidas = new HBox();
+        cajaVidas.setMinWidth(ESCENA_TAM_X);
+        cajaVidas.setAlignment(Pos.TOP_LEFT);
+        cajaVidas.setSpacing(20);
+        root.getChildren().add(cajaVidas);
         //Layout para la cantida de vidas
         HBox cantidaVidas = new HBox();
         cantidaVidas.setSpacing(10);
-        vidas.getChildren().add(cantidaVidas);
+        cajaVidas.getChildren().add(cantidaVidas);
         //Texto de etiqueta para las vidas
         Text textVidas = new Text("Vidas:");
         textVidas.setFont(Font.font(TEXT_SIZE));
         textVidas.setFill(Color.BLACK);
         //Texto para la cantidad de vidas
-        Text textCantidaVidas = new Text("3");
+        textCantidaVidas = new Text("3");
         textCantidaVidas.setFont(Font.font(TEXT_SIZE));
         textCantidaVidas.setFill(Color.BLACK);
         //Añadimos los textos a los layouts reservados para ellos
-        vidas.getChildren().add(textVidas);
-        vidas.getChildren().add(textCantidaVidas);
+        cajaVidas.getChildren().add(textVidas);
+        cajaVidas.getChildren().add(textCantidaVidas);
     }
     //Metodo para el codigo del diseño del personaje y los enemigos
     public void diseñoPersonaje(){
@@ -463,6 +482,15 @@ final int TEXT_SIZE = 24;
         grupoContactoPinchos.getChildren().add(contactoPinchos);
         grupoContactoPinchos.getChildren().add(pinchos1);
         root.getChildren().add(grupoContactoPinchos);
+        //Rectangulo para la zona de contacto del hueso
+        contactoHueso = new Rectangle(15, 35);
+        contactoHueso.setRotate(30);
+        contactoHueso.setFill(Color.RED);
+        contactoHueso.setVisible(true);
+        grupoContactoHueso = new Group();
+        grupoContactoHueso.getChildren().add(contactoHueso);
+        grupoContactoHueso.getChildren().add(femur);
+        root.getChildren().add(grupoContactoHueso);
     }
     //Metodo para el reinicio del juego
     public void reinicioJuego(){
@@ -470,14 +498,25 @@ final int TEXT_SIZE = 24;
     }
     //Metodo para las colisiones
     public void getColisiones(){
-        
+        //Detección de colisiones 
         Shape colisionMosca = Shape.intersect(contactoPerro, contactoMosca);
-        boolean colisionVacia1 = colisionMosca.getBoundsInLocal().isEmpty();
+        colisionVacia1 = colisionMosca.getBoundsInLocal().isEmpty();
         Shape colisionMosca3 = Shape.intersect(contactoPerro, contactoMosca3);
-        boolean colisionVacia2 = colisionMosca3.getBoundsInLocal().isEmpty();
+        colisionVacia2 = colisionMosca3.getBoundsInLocal().isEmpty();
         Shape colisionPinchos = Shape.intersect(contactoPerro, contactoPinchos);
-        boolean colisionVacia3 = colisionPinchos.getBoundsInLocal().isEmpty();
-        
+        colisionVacia3 = colisionPinchos.getBoundsInLocal().isEmpty();
+        //Control de puntuación y vidas
+        if ((colisionVacia1 == false || colisionVacia2 == false || colisionVacia3 == false) && (vidas > 0)){
+            vidas--;
+            textCantidaVidas.setText(String.valueOf(vidas));   
+        }
+        if (vidas == 0){
+            if (score > maxscore){
+                maxscore = score;
+                textHighScore.setText(String.valueOf(maxscore));
+            }
+           reinicioJuego();
+        }
     }
     //Metodo para el limite de movimiento del personaje en la pantalla
     public void limiteMovimiento(){
