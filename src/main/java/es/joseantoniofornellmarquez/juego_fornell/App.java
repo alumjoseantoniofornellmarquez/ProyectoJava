@@ -125,43 +125,8 @@ final int TEXT_SIZE = 24;
         enemigoPosicionY3 = random.nextInt(50) + 400;
         //Llamada al metodo del personaje
         diseñoPersonaje();
-        //Textos y información que se vera en pantalla
-        //Layout principal
-        HBox puntuacion = new HBox();
-        puntuacion.setTranslateY(20);
-        puntuacion.setMinWidth(ESCENA_TAM_X);
-        puntuacion.setAlignment(Pos.CENTER);
-        puntuacion.setSpacing(100);
-        root.getChildren().add(puntuacion);
-        //Layout para puntuación actual
-        HBox puntuacionActual = new HBox();
-        puntuacionActual.setSpacing(10);
-        puntuacion.getChildren().add(puntuacionActual);
-        //Layout para puntuación máxima
-        HBox puntuacionMaxima = new HBox();
-        puntuacionMaxima.setSpacing(10);
-        puntuacion.getChildren().add(puntuacionMaxima);
-        //Texto de etiqueta para la puntuación
-        Text textTitleScore = new Text("Puntos:");
-        textTitleScore.setFont(Font.font(TEXT_SIZE));
-        textTitleScore.setFill(Color.BLACK);
-        //Texto para la puntuación
-        Text textScore = new Text("0");
-        textScore.setFont(Font.font(TEXT_SIZE));
-        textScore.setFill(Color.BLACK);
-        //Texto para la etiqueta de la puntuación máxima
-        Text textTitleHighScore = new Text("Puntuación Maxima:");
-        textTitleHighScore.setFont(Font.font(TEXT_SIZE));
-        textTitleHighScore.setFill(Color.BLACK);
-        //Texto para la puntuación máxima
-        Text textHighScore = new Text("0");
-        textHighScore.setFont(Font.font(TEXT_SIZE));
-        textHighScore.setFill(Color.BLACK);
-        //Añadimos los textos a los layouts reservados para ellos
-        puntuacionActual.getChildren().add(textTitleScore);
-        puntuacionActual.getChildren().add(textScore);
-        puntuacionMaxima.getChildren().add(textTitleHighScore);
-        puntuacionMaxima.getChildren().add(textHighScore);
+        //LLamada al metodo de los textos
+        textosJuego();
         //Teclas para el movimiento del personaje
         scene.setOnKeyPressed((KeyEvent event) -> {
             switch(event.getCode()){
@@ -297,6 +262,66 @@ final int TEXT_SIZE = 24;
         );
         tiempoAnimacion.setCycleCount(Timeline.INDEFINITE);
         tiempoAnimacion.play();
+    }
+    //Metodo para los label del juego
+    public void textosJuego(){
+        //Textos y información que se mostrara en pantalla
+        //Layout principal
+        HBox puntuacion = new HBox();
+        puntuacion.setMinWidth(ESCENA_TAM_X-60);
+        puntuacion.setAlignment(Pos.TOP_RIGHT);
+        puntuacion.setSpacing(150);
+        root.getChildren().add(puntuacion);
+        //Layout para puntuación actual
+        HBox puntuacionActual = new HBox();
+        puntuacionActual.setSpacing(10);
+        puntuacion.getChildren().add(puntuacionActual);
+        //Layout para puntuación máxima
+        HBox puntuacionMaxima = new HBox();
+        puntuacionMaxima.setSpacing(10);
+        puntuacion.getChildren().add(puntuacionMaxima);
+         //Texto de etiqueta para la puntuación
+        Text textTitleScore = new Text("Puntos:");
+        textTitleScore.setFont(Font.font(TEXT_SIZE));
+        textTitleScore.setFill(Color.BLACK);
+        //Texto para la puntuación
+        Text textScore = new Text("0");
+        textScore.setFont(Font.font(TEXT_SIZE));
+        textScore.setFill(Color.BLACK);
+        //Texto para la etiqueta de la puntuación máxima
+        Text textTitleHighScore = new Text("Puntuación Maxima:");
+        textTitleHighScore.setFont(Font.font(TEXT_SIZE));
+        textTitleHighScore.setFill(Color.BLACK);
+        //Texto para la puntuación máxima
+        Text textHighScore = new Text("0");
+        textHighScore.setFont(Font.font(TEXT_SIZE));
+        textHighScore.setFill(Color.BLACK);
+        //Añadimos los textos a los layouts reservados para ellos
+        puntuacionActual.getChildren().add(textTitleScore);
+        puntuacionActual.getChildren().add(textScore);
+        puntuacionMaxima.getChildren().add(textTitleHighScore);
+        puntuacionMaxima.getChildren().add(textHighScore);
+        //Layout para las vidas
+        HBox vidas = new HBox();
+        vidas.setMinWidth(ESCENA_TAM_X);
+        vidas.setAlignment(Pos.TOP_LEFT);
+        vidas.setSpacing(20);
+        root.getChildren().add(vidas);
+        //Layout para la cantida de vidas
+        HBox cantidaVidas = new HBox();
+        cantidaVidas.setSpacing(10);
+        vidas.getChildren().add(cantidaVidas);
+        //Texto de etiqueta para las vidas
+        Text textVidas = new Text("Vidas:");
+        textVidas.setFont(Font.font(TEXT_SIZE));
+        textVidas.setFill(Color.BLACK);
+        //Texto para la cantidad de vidas
+        Text textCantidaVidas = new Text("3");
+        textCantidaVidas.setFont(Font.font(TEXT_SIZE));
+        textCantidaVidas.setFill(Color.BLACK);
+        //Añadimos los textos a los layouts reservados para ellos
+        vidas.getChildren().add(textVidas);
+        vidas.getChildren().add(textCantidaVidas);
     }
     //Metodo para el codigo del diseño del personaje y los enemigos
     public void diseñoPersonaje(){
