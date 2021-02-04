@@ -8,6 +8,8 @@ import javafx.event.ActionEvent;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
@@ -21,6 +23,7 @@ import javafx.scene.shape.Shape;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.util.Duration;
 
 
@@ -53,6 +56,7 @@ boolean visible= false;
 boolean colisionVacia1;
 boolean colisionVacia2;
 boolean colisionVacia3;
+boolean colisionVacia4;
 //Velocidad del movimiento del personaje
 int movimientoPerro = 0;
 //Posicion del fondo
@@ -77,6 +81,11 @@ int enemigoPosicionX2;
 int enemigoPosicionY2;
 int enemigoPosicionX3;
 int enemigoPosicionY3;
+//Hueso posición
+int huesoPosicionY;
+int huesoPosicionX;
+//Incremento para la caida del hueso
+int velocidadCaidaHueso = -3;
 //Variables para la imagen de los enemigos y hueso
 ImageView mosca1;
 ImageView pinchos1;
@@ -99,8 +108,13 @@ int vidas = 3;
 //Texto maximo puntos
 Text textHighScore;
 int maxscore = 0;
+//Variable para la animación
+Timeline tiempoAnimacion;
+//Variable para las alertas
+Alert muerto;
     @Override
     public void start(Stage stage) {
+        reinicioJuego();
         //Panel donde se va motras todo el juego
         root = new Pane();
         Scene scene = new Scene(root, ESCENA_TAM_X, ESCENA_TAM_Y);
@@ -128,17 +142,21 @@ int maxscore = 0;
         pinchos1 = new ImageView();
         mosca3 = new ImageView();
         femur = new ImageView();
+        femur.setImage(hueso);
         root.getChildren().add(mosca1);
         root.getChildren().add(pinchos1);
         root.getChildren().add(mosca3);
         root.getChildren().add(femur);
         //Posicion aletoria del enemigo
-        enemigoPosicionX1 = random.nextInt(100) + 800;
+        enemigoPosicionX1 = random.nextInt(200) + 800;
         enemigoPosicionY1 = random.nextInt(50) + 400;
-        enemigoPosicionX2 = random.nextInt(100) + 1500;
+        enemigoPosicionX2 = random.nextInt(200) + 1500;
         enemigoPosicionY2 = 470;
-        enemigoPosicionX3 = random.nextInt(100) + 2200;
+        enemigoPosicionX3 = random.nextInt(200) + 2200;
         enemigoPosicionY3 = random.nextInt(50) + 400;
+        //Posicion aletoria del hueso
+        huesoPosicionX = random.nextInt(200) + 4000;
+        huesoPosicionY = random.nextInt(50) + 400;
         //Llamada al metodo del personaje
         diseñoPersonaje();
         //LLamada al metodo de los textos
@@ -180,6 +198,7 @@ int maxscore = 0;
                     break;
                 case ESCAPE:
                     reinicioJuego();
+                    tiempoAnimacion.play();
                     break;
             }
         });
@@ -190,7 +209,7 @@ int maxscore = 0;
             derecha = false;
         });
         //Código para lla animación del juego
-        Timeline tiempoAnimacion = new Timeline(
+        tiempoAnimacion = new Timeline(
                 new KeyFrame(Duration.seconds(0.01), (ActionEvent ae) -> {
                    
                     //Movimiento del fondo
@@ -239,20 +258,14 @@ int maxscore = 0;
                     if (enemigoPosicionX1 <= -ESCENA_TAM_X){
                         enemigoPosicionX1 = ESCENA_TAM_X;
                         grupoContactoMosca.setLayoutX(enemigoPosicionX1);
-                        enemigoPosicionX1 = random.nextInt(100) + 800;
+                        enemigoPosicionX1 = random.nextInt(200) + 800;
                         enemigoPosicionY1 = random.nextInt(50) + 400;
                     }
-                    if (enemigoPosicionX2/5%2==0){
-                        pinchos1.setImage(pinchos);
-
-                    }
-                    if (enemigoPosicionX2/5%2==1){
-                        pinchos1.setImage(pinchos);
-                    }
+                    //Pinchos
                     if (enemigoPosicionX2 <= -ESCENA_TAM_X){
                         enemigoPosicionX2 = ESCENA_TAM_X;
                         grupoContactoPinchos.setLayoutX(enemigoPosicionX2);
-                        enemigoPosicionX2 = random.nextInt(100) + 1500;
+                        enemigoPosicionX2 = random.nextInt(200) + 1500;
                         enemigoPosicionY2 = 470;
                     }
                     if (enemigoPosicionX3/5%2==0){
@@ -264,17 +277,27 @@ int maxscore = 0;
                     if (enemigoPosicionX3 <= -ESCENA_TAM_X){
                         enemigoPosicionX3 = ESCENA_TAM_X;
                         grupoContactoMosca3.setLayoutX(enemigoPosicionX3);
-                        enemigoPosicionX3 = random.nextInt(100) + 2200;
+                        enemigoPosicionX3 = random.nextInt(200) + 2200;
                         enemigoPosicionY3 = random.nextInt(50) + 400;
                     }
+                    //Movimiento de hueso
+                    huesoPosicionX += velocidadCaidaHueso;
+                    if (huesoPosicionX <= -ESCENA_TAM_X){
+                        huesoPosicionX = ESCENA_TAM_X;
+                        grupoContactoHueso.setLayoutX(huesoPosicionX);
+                        huesoPosicionX = random.nextInt(200) + 1000;
+                        huesoPosicionY = random.nextInt(50) + 400;
+                    }
+                    //Muestra de imagenes en sus posiciones
                     fondoVisto.setLayoutX(movimientoFondo);
                     fondoVisto2.setLayoutX(movimientoFondo2);
                     grupoContactoPerro.setLayoutY(posicionY);
                     grupoContactoPerro.setLayoutX(posicionX);
-                    grupoContactoHueso.setLayoutY(posicionY);
-                    grupoContactoHueso.setLayoutX(posicionX);
+                    grupoContactoHueso.setLayoutY(huesoPosicionY);
+                    grupoContactoHueso.setLayoutX(huesoPosicionX);
                     System.out.println(posicionY);
                     System.out.println(posicionX);
+                    System.out.println(velocidadCaidaHueso);
                     //Metodo que controla las colisiones y la puntuación
                     getColisiones();
                 })
@@ -486,7 +509,7 @@ int maxscore = 0;
         contactoHueso = new Rectangle(15, 35);
         contactoHueso.setRotate(30);
         contactoHueso.setFill(Color.RED);
-        contactoHueso.setVisible(true);
+        contactoHueso.setVisible(false);
         grupoContactoHueso = new Group();
         grupoContactoHueso.getChildren().add(contactoHueso);
         grupoContactoHueso.getChildren().add(femur);
@@ -494,7 +517,32 @@ int maxscore = 0;
     }
     //Metodo para el reinicio del juego
     public void reinicioJuego(){
-    
+        //Velocidad del movimiento del personaje
+        movimientoPerro = 0;
+        //Posicion del fondo
+        movimientoFondo = 0;
+        movimientoFondo2 = 800;
+        //Posicion inicial del personaje
+        posicionY = 470;
+        posicionX = 20;
+        //vidas
+        vidas = 3;
+        //Puntuación
+        score = 0;
+        //Enemigos
+        //Posicion aletoria del enemigo
+        enemigoPosicionX1 = random.nextInt(200) + 800;
+        enemigoPosicionY1 = random.nextInt(50) + 400;
+        enemigoPosicionX2 = random.nextInt(200) + 1500;
+        enemigoPosicionY2 = 470;
+        enemigoPosicionX3 = random.nextInt(200) + 2200;
+        enemigoPosicionY3 = random.nextInt(50) + 400;
+        //Posicion aletoria del hueso
+        huesoPosicionX = random.nextInt(200) + 4000;
+        huesoPosicionY = random.nextInt(50) + 400;
+        //Texto para la puntuación máxima
+        textScore.setText(String.valueOf(score));
+        textCantidaVidas.setText(String.valueOf(vidas));
     }
     //Metodo para las colisiones
     public void getColisiones(){
@@ -505,17 +553,39 @@ int maxscore = 0;
         colisionVacia2 = colisionMosca3.getBoundsInLocal().isEmpty();
         Shape colisionPinchos = Shape.intersect(contactoPerro, contactoPinchos);
         colisionVacia3 = colisionPinchos.getBoundsInLocal().isEmpty();
+        Shape colisionHueso = Shape.intersect(contactoPerro, contactoHueso);
+        colisionVacia4 = colisionHueso.getBoundsInLocal().isEmpty();
         //Control de puntuación y vidas
         if ((colisionVacia1 == false || colisionVacia2 == false || colisionVacia3 == false) && (vidas > 0)){
-            vidas--;
-            textCantidaVidas.setText(String.valueOf(vidas));   
+            vidas -= 1;
+            textCantidaVidas.setText(String.valueOf(vidas));
+            enemigoPosicionX1 = random.nextInt(200) + 800;
+            enemigoPosicionY1 = random.nextInt(50) + 400;
+            enemigoPosicionX2 = random.nextInt(200) + 1500;
+            enemigoPosicionY2 = 470;
+            enemigoPosicionX3 = random.nextInt(200) + 2200;
+            enemigoPosicionY3 = random.nextInt(50) + 400;
+        }
+        if (colisionVacia4 == false  && (vidas > 0)){
+            score += 200;
+            textScore.setText(String.valueOf(score));
+            huesoPosicionX += velocidadCaidaHueso;
+            System.out.println(colisionVacia4);
+            huesoPosicionX = random.nextInt(100) + 1000;
+            huesoPosicionY = random.nextInt(50) + 400;
         }
         if (vidas == 0){
             if (score > maxscore){
                 maxscore = score;
                 textHighScore.setText(String.valueOf(maxscore));
             }
-           reinicioJuego();
+           tiempoAnimacion.stop();
+           muerto = new Alert(AlertType.INFORMATION);
+           muerto.setTitle("Game Over");
+           muerto.setHeaderText(null);
+           muerto.setContentText("¡Has Muerto!");
+           muerto.initStyle(StageStyle.UTILITY);
+           muerto.show();
         }
     }
     //Metodo para el limite de movimiento del personaje en la pantalla
@@ -534,10 +604,6 @@ int maxscore = 0;
         }
         }else
             contador = 0;
-    }
-    //Metodo para detectar colisiones
-    public void colisiones(){
-    
     }
     public static void main(String[] args) {
         launch();
