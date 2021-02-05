@@ -1,6 +1,7 @@
 package es.joseantoniofornellmarquez.juego_fornell;
 
 import java.util.Random;
+import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
@@ -108,13 +109,22 @@ int vidas = 3;
 //Texto maximo puntos
 Text textHighScore;
 int maxscore = 0;
+//Texto inicio
+Text textInicio;
+HBox inicio;
+//Texto muerto
+Text textMuerto;
+HBox hasMuerto;
 //Variable para la animación
 Timeline tiempoAnimacion;
 //Variable para las alertas
 Alert muerto;
+//Variable para ver si estoy vivo o muerto
+boolean noMuerto = true;
+//Variable incremento vida
+boolean incrementoVida = false;
     @Override
     public void start(Stage stage) {
-        reinicioJuego();
         //Panel donde se va motras todo el juego
         root = new Pane();
         Scene scene = new Scene(root, ESCENA_TAM_X, ESCENA_TAM_Y);
@@ -157,10 +167,13 @@ Alert muerto;
         //Posicion aletoria del hueso
         huesoPosicionX = random.nextInt(200) + 4000;
         huesoPosicionY = random.nextInt(50) + 400;
+        
         //Llamada al metodo del personaje
         diseñoPersonaje();
         //LLamada al metodo de los textos
         textosJuego();
+        //Metodo para el reinicio del juego
+        reinicioJuego();
         //Teclas para el movimiento del personaje
         scene.setOnKeyPressed((KeyEvent event) -> {
             switch(event.getCode()){
@@ -194,12 +207,22 @@ Alert muerto;
                     break;
                 case SPACE:
                     movimientoY = -10;
-
                     break;
-                case ESCAPE:
+                case ESCAPE: 
+                if (noMuerto == false && tiempoAnimacion.getStatus()== Animation.Status.STOPPED){
+                    reinicioJuego();
+                    tiempoAnimacion.stop();
+                    root.getChildren().add(inicio);
+                    root.getChildren().remove(hasMuerto);
+                }
+                    break;
+                case ENTER:
+                //Código que lleva el inicio del juego
+                if (noMuerto == true && tiempoAnimacion.getStatus()== Animation.Status.STOPPED){
                     reinicioJuego();
                     tiempoAnimacion.play();
-                    break;
+                    root.getChildren().remove(inicio);
+                }
             }
         });
         scene.setOnKeyReleased((KeyEvent event) -> {
@@ -211,14 +234,13 @@ Alert muerto;
         //Código para lla animación del juego
         tiempoAnimacion = new Timeline(
                 new KeyFrame(Duration.seconds(0.01), (ActionEvent ae) -> {
-                   
                     //Movimiento del fondo
                     if (movimientoFondo <= -ESCENA_TAM_X){
-                        movimientoFondo = ESCENA_TAM_X;
+                        movimientoFondo = movimientoFondo2 + ESCENA_TAM_X;
                         fondoVisto.setLayoutX(movimientoFondo);
                     }
                     if (movimientoFondo2 <= -ESCENA_TAM_X){
-                        movimientoFondo2 = ESCENA_TAM_X;
+                        movimientoFondo2 = movimientoFondo + ESCENA_TAM_X;
                         fondoVisto2.setLayoutX(movimientoFondo2);
                     }
                     //Movimiento del salto
@@ -295,15 +317,21 @@ Alert muerto;
                     grupoContactoPerro.setLayoutX(posicionX);
                     grupoContactoHueso.setLayoutY(huesoPosicionY);
                     grupoContactoHueso.setLayoutX(huesoPosicionX);
-                    System.out.println(posicionY);
-                    System.out.println(posicionX);
-                    System.out.println(velocidadCaidaHueso);
+                    //System.out.println(posicionY);
+                    //System.out.println(posicionX);
+                    //System.out.println(velocidadCaidaHueso);
                     //Metodo que controla las colisiones y la puntuación
                     getColisiones();
+                    //Condiciones para ganar vidas y aumentar la velocidad
+                    if (score %1000 == 0 && score > 0 && incrementoVida == false){
+                        vidas++;
+                        textCantidaVidas.setText(String.valueOf(vidas));
+                        System.out.println(score);
+                        incrementoVida = true;
+                    }
                 })
         );
         tiempoAnimacion.setCycleCount(Timeline.INDEFINITE);
-        tiempoAnimacion.play();
     }
     //Metodo para los label del juego
     public void textosJuego(){
@@ -364,6 +392,28 @@ Alert muerto;
         //Añadimos los textos a los layouts reservados para ellos
         cajaVidas.getChildren().add(textVidas);
         cajaVidas.getChildren().add(textCantidaVidas);
+        //Label inicial
+        inicio = new HBox();
+        inicio.setMinWidth(ESCENA_TAM_X);
+        inicio.setMinHeight(ESCENA_TAM_Y);
+        inicio.setAlignment(Pos.CENTER);
+        inicio.setSpacing(150);
+        root.getChildren().add(inicio);
+        textInicio = new Text("¡Pulsa ENTER para iniciar!");
+        textInicio.setFont(Font.font(50));
+        textInicio.setFill(Color.BLACK);
+        inicio.getChildren().add(textInicio);
+        //Label muerto
+        hasMuerto = new HBox();
+        hasMuerto.setMinWidth(ESCENA_TAM_X);
+        hasMuerto.setMinHeight(ESCENA_TAM_Y);
+        hasMuerto.setAlignment(Pos.CENTER);
+        hasMuerto.setSpacing(150);
+        root.getChildren().add(hasMuerto);
+        textMuerto = new Text("¡Has Muerto! \n Pulsa ESC para reiniciar");
+        textMuerto.setFont(Font.font(50));
+        textMuerto.setFill(Color.BLACK);
+        
     }
     //Metodo para el codigo del diseño del personaje y los enemigos
     public void diseñoPersonaje(){
@@ -543,6 +593,8 @@ Alert muerto;
         //Texto para la puntuación máxima
         textScore.setText(String.valueOf(score));
         textCantidaVidas.setText(String.valueOf(vidas));
+        //Variable noMuerto
+        noMuerto = true;
     }
     //Metodo para las colisiones
     public void getColisiones(){
@@ -573,19 +625,16 @@ Alert muerto;
             System.out.println(colisionVacia4);
             huesoPosicionX = random.nextInt(100) + 1000;
             huesoPosicionY = random.nextInt(50) + 400;
+            incrementoVida = false;
         }
         if (vidas == 0){
             if (score > maxscore){
                 maxscore = score;
                 textHighScore.setText(String.valueOf(maxscore));
             }
+           noMuerto = false;
            tiempoAnimacion.stop();
-           muerto = new Alert(AlertType.INFORMATION);
-           muerto.setTitle("Game Over");
-           muerto.setHeaderText(null);
-           muerto.setContentText("¡Has Muerto!");
-           muerto.initStyle(StageStyle.UTILITY);
-           muerto.show();
+           hasMuerto.getChildren().add(textMuerto);
         }
     }
     //Metodo para el limite de movimiento del personaje en la pantalla
