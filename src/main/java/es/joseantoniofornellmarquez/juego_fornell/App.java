@@ -118,7 +118,7 @@ Text textMuerto;
 Text textMuerto2;
 VBox hasMuerto;
 //Texto pausa
-VBox pausa;
+HBox pausa;
 Text textPausa;
 //Variable para la animación
 Timeline tiempoAnimacion;
@@ -359,7 +359,7 @@ AudioClip audioClip4;//Sonido al obtener un hueso
                         System.out.println(score);
                         incrementoVida = true;
                         velocidadMosca -= 0.2;
-                        velocidadPinchos -= 0.2;
+                        velocidadPinchos -= 0.1;
                     }
                 })
         );
@@ -449,7 +449,7 @@ AudioClip audioClip4;//Sonido al obtener un hueso
         textMuerto2.setFont(Font.font(50));
         textMuerto2.setFill(Color.BLACK);
         //Texto Pausa
-        pausa = new VBox();
+        pausa = new HBox();
         pausa.setMinWidth(ESCENA_TAM_X);
         pausa.setMinHeight(ESCENA_TAM_Y);
         pausa.setAlignment(Pos.CENTER);
@@ -639,6 +639,9 @@ AudioClip audioClip4;//Sonido al obtener un hueso
         textCantidaVidas.setText(String.valueOf(vidas));
         //Variable noMuerto
         noMuerto = true;
+        //Velocidad del los enemigos
+        velocidadMosca = -2;
+        velocidadPinchos = -1;
     }
     //Metodo para las colisiones
     public void getColisiones(){
