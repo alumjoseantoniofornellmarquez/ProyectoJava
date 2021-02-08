@@ -63,7 +63,7 @@ boolean colisionVacia4;
 int movimientoPerro = 0;
 //Posicion del fondo
 int movimientoFondo = 0;
-int movimientoFondo2 = 800;
+int movimientoFondo2 = ESCENA_TAM_X;
 //Variables del diseño del personaje
 Rectangle rectPataDel;
 Rectangle rectPataTra;
@@ -96,7 +96,7 @@ ImageView femur;
 //Velocidad de enemigo
 int velocidadMosca = -2;
 int velocidadPinchos = -1;
-//Objeto rando para las posiciones de los enemigos
+//Objeto random para las posiciones de los enemigos
 Random random = new Random();
 //Variable tamaño textos
 final int TEXT_SIZE = 24;
@@ -124,7 +124,7 @@ Text textPausa;
 Timeline tiempoAnimacion;
 //Variable para ver si estoy vivo o muerto
 boolean noMuerto = true;
-//Variable incremento vida
+//Variable para comprobar si he incrementado una vida o no
 boolean incrementoVida = false;
 //Variables audio
 AudioClip audioClip1;//Sonido del juego
@@ -133,7 +133,7 @@ AudioClip audioClip3;//Sonido golpeo con enemigos
 AudioClip audioClip4;//Sonido al obtener un hueso
     @Override
     public void start(Stage stage) {
-        //Panel donde se va motras todo el juego
+        //Panel donde se va motrar todo el juego
         root = new Pane();
         Scene scene = new Scene(root, ESCENA_TAM_X, ESCENA_TAM_Y);
         scene.setFill(Color.BLACK);
@@ -164,7 +164,7 @@ AudioClip audioClip4;//Sonido al obtener un hueso
         root.getChildren().add(pinchos1);
         root.getChildren().add(mosca3);
         root.getChildren().add(femur);
-        //Posicion aletoria del enemigo
+        //Posicion aletoria de los enemigos
         enemigoPosicionX1 = random.nextInt(200) + 800;
         enemigoPosicionY1 = random.nextInt(50) + 400;
         enemigoPosicionX2 = random.nextInt(200) + 1500;
@@ -174,7 +174,7 @@ AudioClip audioClip4;//Sonido al obtener un hueso
         //Posicion aletoria del hueso
         huesoPosicionX = random.nextInt(200) + 4000;
         huesoPosicionY = random.nextInt(50) + 400;
-        //Llamada al metodo del audio
+        //Llamada al los metodos del audio
         audioJuego();
         audioSalto();
         audioMuerto();
@@ -253,6 +253,7 @@ AudioClip audioClip4;//Sonido al obtener un hueso
                 }
             }
         });
+        //Cuando suelto cualquier tecla
         scene.setOnKeyReleased((KeyEvent event) -> {
             movimientoPerro = 0;
             rectPataDel.setRotate(0);
@@ -286,24 +287,23 @@ AudioClip audioClip4;//Sonido al obtener un hueso
                     if (posicionX <= 20){
                         movimientoPerro = 0;
                     }
+                    //Llamada al metodo que limita hasta donde se mueve el perro
                     limiteMovimiento();
                     //Movimiento moscas
                     grupoContactoMosca.setLayoutX(enemigoPosicionX1);
                     grupoContactoMosca.setLayoutY(enemigoPosicionY1);
-                    grupoContactoPinchos.setLayoutX(enemigoPosicionX2);
-                    grupoContactoPinchos.setLayoutY(enemigoPosicionY2);
                     grupoContactoMosca3.setLayoutX(enemigoPosicionX3);
                     grupoContactoMosca3.setLayoutY(enemigoPosicionY3);
                     enemigoPosicionX1 += velocidadMosca;
-                    enemigoPosicionX2 += velocidadPinchos;
                     enemigoPosicionX3 += velocidadMosca;
+                    //Comprobación de donde se encuentra la mosca en X para mostrar 
+                    //las alas arriba o abajo lo que da sensación de aleteo.
                     if (enemigoPosicionX1/5%2==0){
                         mosca1.setImage(moscaArriba);
 
                     }
                     if (enemigoPosicionX1/5%2==1){
                         mosca1.setImage(moscaAbajo);
-
                     }
                     if (enemigoPosicionX1 <= -ESCENA_TAM_X){
                         enemigoPosicionX1 = ESCENA_TAM_X;
@@ -311,13 +311,18 @@ AudioClip audioClip4;//Sonido al obtener un hueso
                         enemigoPosicionX1 = random.nextInt(200) + 800;
                         enemigoPosicionY1 = random.nextInt(50) + 400;
                     }
-                    //Pinchos
+                    //Movimiento del enemigo Pinchos
+                    grupoContactoPinchos.setLayoutX(enemigoPosicionX2);
+                    grupoContactoPinchos.setLayoutY(enemigoPosicionY2);
+                    enemigoPosicionX2 += velocidadPinchos;
                     if (enemigoPosicionX2 <= -ESCENA_TAM_X){
                         enemigoPosicionX2 = ESCENA_TAM_X;
                         grupoContactoPinchos.setLayoutX(enemigoPosicionX2);
                         enemigoPosicionX2 = random.nextInt(200) + 1500;
                         enemigoPosicionY2 = 470;
                     }
+                    //Comprobación de donde se encuentra la mosca en X para mostrar 
+                    //las alas arriba o abajo lo que da sensación de aleteo.
                     if (enemigoPosicionX3/5%2==0){
                         mosca3.setImage(moscaArriba);
                     }
@@ -711,6 +716,7 @@ AudioClip audioClip4;//Sonido al obtener un hueso
         if(urlAudio != null) {
             try {
                 audioClip1 = new AudioClip(urlAudio.toURI().toString());
+                audioClip1.setCycleCount(Timeline.INDEFINITE);
                 audioClip1.play();
         } catch (URISyntaxException ex) {
         System.out.println("Error en el formato de ruta de archivo de audio");
