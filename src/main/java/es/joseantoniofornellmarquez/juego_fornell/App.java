@@ -117,6 +117,9 @@ HBox inicio;
 Text textMuerto;
 Text textMuerto2;
 VBox hasMuerto;
+//Texto pausa
+VBox pausa;
+Text textPausa;
 //Variable para la animación
 Timeline tiempoAnimacion;
 //Variable para ver si estoy vivo o muerto
@@ -223,9 +226,11 @@ AudioClip audioClip4;//Sonido al obtener un hueso
                     if (tiempoAnimacion.getStatus()== Animation.Status.RUNNING){
                         tiempoAnimacion.pause();
                         audioClip1.stop();
+                        pausa.getChildren().add(textPausa);
                     }else {
                         tiempoAnimacion.play();
                         audioClip1.play();
+                        pausa.getChildren().remove(textPausa);
                     }
                     break;
                 case ESCAPE: 
@@ -353,6 +358,8 @@ AudioClip audioClip4;//Sonido al obtener un hueso
                         textCantidaVidas.setText(String.valueOf(vidas));
                         System.out.println(score);
                         incrementoVida = true;
+                        velocidadMosca -= 0.2;
+                        velocidadPinchos -= 0.2;
                     }
                 })
         );
@@ -417,7 +424,7 @@ AudioClip audioClip4;//Sonido al obtener un hueso
         //Añadimos los textos a los layouts reservados para ellos
         cajaVidas.getChildren().add(textVidas);
         cajaVidas.getChildren().add(textCantidaVidas);
-        //Label inicial
+        //Texto inicial
         inicio = new HBox();
         inicio.setMinWidth(ESCENA_TAM_X);
         inicio.setMinHeight(ESCENA_TAM_Y);
@@ -428,7 +435,7 @@ AudioClip audioClip4;//Sonido al obtener un hueso
         textInicio.setFont(Font.font(50));
         textInicio.setFill(Color.BLACK);
         inicio.getChildren().add(textInicio);
-        //Label muerto
+        //Texto muerto
         hasMuerto = new VBox();
         hasMuerto.setMinWidth(ESCENA_TAM_X);
         hasMuerto.setMinHeight(ESCENA_TAM_Y);
@@ -441,7 +448,16 @@ AudioClip audioClip4;//Sonido al obtener un hueso
         textMuerto.setFill(Color.BLACK);
         textMuerto2.setFont(Font.font(50));
         textMuerto2.setFill(Color.BLACK);
-        
+        //Texto Pausa
+        pausa = new VBox();
+        pausa.setMinWidth(ESCENA_TAM_X);
+        pausa.setMinHeight(ESCENA_TAM_Y);
+        pausa.setAlignment(Pos.CENTER);
+        pausa.setSpacing(150);
+        root.getChildren().add(pausa);
+        textPausa = new Text("Pausa");
+        textPausa.setFont(Font.font(50));
+        textPausa.setFill(Color.BLACK);
     }
     //Metodo para el codigo del diseño del personaje y los enemigos
     public void diseñoPersonaje(){
