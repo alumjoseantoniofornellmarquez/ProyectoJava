@@ -110,7 +110,7 @@ int velocidadMosca = -2;
 int velocidadPinchos = -1;
 //Objeto random para las posiciones de los enemigos
 Random random = new Random();
-//Variable tamaño textos
+//Constante tamaño textos
 final int TEXT_SIZE = 24;
 //Puntuación
 int score = 0;
@@ -435,7 +435,7 @@ AudioClip audioClip4;//Sonido al obtener un hueso
         textVidas.setFont(Font.font(TEXT_SIZE));
         textVidas.setFill(Color.BLACK);
         //Texto para la cantidad de vidas
-        textCantidaVidas = new Text("3");
+        textCantidaVidas = new Text("10");
         textCantidaVidas.setFont(Font.font(TEXT_SIZE));
         textCantidaVidas.setFill(Color.BLACK);
         //Añadimos los textos a los layouts reservados para ellos
@@ -683,6 +683,7 @@ AudioClip audioClip4;//Sonido al obtener un hueso
             enemigoPosicionY3 = random.nextInt(50) + 400;
             audioClip3.play();
         }
+        //Colisión hueso
         if (colisionVacia4 == false  && (vidas > 0)){
             score += 200;
             textScore.setText(String.valueOf(score));
