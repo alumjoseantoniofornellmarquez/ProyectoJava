@@ -1,3 +1,15 @@
+/*
+Juego creado por Jose Antonio Fornell Márquez.
+Para la asignatura de programación.
+Todas las imagenes y sonidos del juego son de uso
+libre con licencica CC0, exceptuando el fondo que ademas 
+tiene licencia OGA-BY 3.0 y es necesario indicar de donde se ha obtenido
+y dar su reconocimiento que es el siguiente:
+bevouliin.com
+Parte del código utilizado, es adaptado del juego pong de
+Francisco Javier García Escobedo.
+*/
+
 package es.joseantoniofornellmarquez.juego_fornell;
 
 import java.net.URISyntaxException;
