@@ -1,5 +1,7 @@
 package es.joseantoniofornellmarquez.juego_fornell;
 
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Random;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
@@ -9,13 +11,13 @@ import javafx.event.ActionEvent;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
+import javafx.scene.media.AudioClip;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polyline;
@@ -24,7 +26,6 @@ import javafx.scene.shape.Shape;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import javafx.util.Duration;
 
 
@@ -105,7 +106,7 @@ int score = 0;
 Text textScore;
 //TextoVidas
 Text textCantidaVidas;
-int vidas = 3;
+int vidas = 10;
 //Texto maximo puntos
 Text textHighScore;
 int maxscore = 0;
@@ -114,15 +115,19 @@ Text textInicio;
 HBox inicio;
 //Texto muerto
 Text textMuerto;
-HBox hasMuerto;
+Text textMuerto2;
+VBox hasMuerto;
 //Variable para la animación
 Timeline tiempoAnimacion;
-//Variable para las alertas
-Alert muerto;
 //Variable para ver si estoy vivo o muerto
 boolean noMuerto = true;
 //Variable incremento vida
 boolean incrementoVida = false;
+//Variables audio
+AudioClip audioClip1;//Sonido del juego
+AudioClip audioClip2;//Sonido salto
+AudioClip audioClip3;//Sonido golpeo con enemigos
+AudioClip audioClip4;//Sonido al obtener un hueso
     @Override
     public void start(Stage stage) {
         //Panel donde se va motras todo el juego
@@ -152,7 +157,6 @@ boolean incrementoVida = false;
         pinchos1 = new ImageView();
         mosca3 = new ImageView();
         femur = new ImageView();
-        femur.setImage(hueso);
         root.getChildren().add(mosca1);
         root.getChildren().add(pinchos1);
         root.getChildren().add(mosca3);
@@ -167,7 +171,11 @@ boolean incrementoVida = false;
         //Posicion aletoria del hueso
         huesoPosicionX = random.nextInt(200) + 4000;
         huesoPosicionY = random.nextInt(50) + 400;
-        
+        //Llamada al metodo del audio
+        audioJuego();
+        audioSalto();
+        audioMuerto();
+        audioHueso();
         //Llamada al metodo del personaje
         diseñoPersonaje();
         //LLamada al metodo de los textos
@@ -205,15 +213,30 @@ boolean incrementoVida = false;
                     movimientoFondo2 -= 5;
                     derecha = true;
                     break;
+                //Salto
                 case SPACE:
                     movimientoY = -10;
+                    audioClip2.play();
+                    break;
+                //Pause
+                case P:
+                    if (tiempoAnimacion.getStatus()== Animation.Status.RUNNING){
+                        tiempoAnimacion.pause();
+                        audioClip1.stop();
+                    }else {
+                        tiempoAnimacion.play();
+                        audioClip1.play();
+                    }
                     break;
                 case ESCAPE: 
+                //Reinicio del juego cuando mueres
                 if (noMuerto == false && tiempoAnimacion.getStatus()== Animation.Status.STOPPED){
                     reinicioJuego();
                     tiempoAnimacion.stop();
                     root.getChildren().add(inicio);
-                    root.getChildren().remove(hasMuerto);
+                    hasMuerto.getChildren().remove(textMuerto);
+                    hasMuerto.getChildren().remove(textMuerto2);
+                    audioClip1.play();
                 }
                     break;
                 case ENTER:
@@ -246,7 +269,7 @@ boolean incrementoVida = false;
                     //Movimiento del salto
                     posicionY += movimientoY;
                     //Si ha llegado a arriba
-                    if (posicionY <= 300){
+                    if (posicionY <= 250){
                         movimientoY = +3;
                     }
                     //Si ha llegado al suelo
@@ -311,6 +334,8 @@ boolean incrementoVida = false;
                         huesoPosicionY = random.nextInt(50) + 400;
                     }
                     //Muestra de imagenes en sus posiciones
+                    femur.setImage(hueso);
+                    pinchos1.setImage(pinchos);
                     fondoVisto.setLayoutX(movimientoFondo);
                     fondoVisto2.setLayoutX(movimientoFondo2);
                     grupoContactoPerro.setLayoutY(posicionY);
@@ -404,15 +429,18 @@ boolean incrementoVida = false;
         textInicio.setFill(Color.BLACK);
         inicio.getChildren().add(textInicio);
         //Label muerto
-        hasMuerto = new HBox();
+        hasMuerto = new VBox();
         hasMuerto.setMinWidth(ESCENA_TAM_X);
         hasMuerto.setMinHeight(ESCENA_TAM_Y);
         hasMuerto.setAlignment(Pos.CENTER);
         hasMuerto.setSpacing(150);
         root.getChildren().add(hasMuerto);
-        textMuerto = new Text("¡Has Muerto! \n Pulsa ESC para reiniciar");
+        textMuerto = new Text("¡Has Muerto!");
+        textMuerto2 = new Text("Pulsa ESC para reiniciar");
         textMuerto.setFont(Font.font(50));
         textMuerto.setFill(Color.BLACK);
+        textMuerto2.setFont(Font.font(50));
+        textMuerto2.setFill(Color.BLACK);
         
     }
     //Metodo para el codigo del diseño del personaje y los enemigos
@@ -576,7 +604,7 @@ boolean incrementoVida = false;
         posicionY = 470;
         posicionX = 20;
         //vidas
-        vidas = 3;
+        vidas = 10;
         //Puntuación
         score = 0;
         //Enemigos
@@ -617,6 +645,7 @@ boolean incrementoVida = false;
             enemigoPosicionY2 = 470;
             enemigoPosicionX3 = random.nextInt(200) + 2200;
             enemigoPosicionY3 = random.nextInt(50) + 400;
+            audioClip3.play();
         }
         if (colisionVacia4 == false  && (vidas > 0)){
             score += 200;
@@ -626,6 +655,7 @@ boolean incrementoVida = false;
             huesoPosicionX = random.nextInt(100) + 1000;
             huesoPosicionY = random.nextInt(50) + 400;
             incrementoVida = false;
+            audioClip4.play();
         }
         if (vidas == 0){
             if (score > maxscore){
@@ -635,6 +665,8 @@ boolean incrementoVida = false;
            noMuerto = false;
            tiempoAnimacion.stop();
            hasMuerto.getChildren().add(textMuerto);
+           hasMuerto.getChildren().add(textMuerto2);
+           audioClip1.stop();
         }
     }
     //Metodo para el limite de movimiento del personaje en la pantalla
@@ -653,6 +685,56 @@ boolean incrementoVida = false;
         }
         }else
             contador = 0;
+    }
+    //Metodo para el audio
+    public void audioJuego(){
+        URL urlAudio = getClass().getResource("/sonidos/SonidoPrincipal.mp3");
+        if(urlAudio != null) {
+            try {
+                audioClip1 = new AudioClip(urlAudio.toURI().toString());
+                audioClip1.play();
+        } catch (URISyntaxException ex) {
+        System.out.println("Error en el formato de ruta de archivo de audio");
+        }            
+        } else {
+        System.out.println("No se ha encontrado el archivo de audio");
+        }
+    }
+    public void audioSalto(){
+        URL urlAudio2 = getClass().getResource("/sonidos/Salto.wav");
+        if(urlAudio2 != null) {
+            try {
+                audioClip2 = new AudioClip(urlAudio2.toURI().toString());
+        } catch (URISyntaxException ex) {
+        System.out.println("Error en el formato de ruta de archivo de audio");
+        }            
+        } else {
+        System.out.println("No se ha encontrado el archivo de audio");
+        }
+    }
+    public void audioMuerto(){
+        URL urlAudio3 = getClass().getResource("/sonidos/Muerto.wav");
+        if(urlAudio3 != null) {
+            try {
+                audioClip3 = new AudioClip(urlAudio3.toURI().toString());
+        } catch (URISyntaxException ex) {
+        System.out.println("Error en el formato de ruta de archivo de audio");
+        }            
+        } else {
+        System.out.println("No se ha encontrado el archivo de audio");
+        }
+    }
+    public void audioHueso(){
+        URL urlAudio4 = getClass().getResource("/sonidos/Hueso.wav");
+        if(urlAudio4 != null) {
+            try {
+                audioClip4 = new AudioClip(urlAudio4.toURI().toString());
+        } catch (URISyntaxException ex) {
+        System.out.println("Error en el formato de ruta de archivo de audio");
+        }            
+        } else {
+        System.out.println("No se ha encontrado el archivo de audio");
+        }
     }
     public static void main(String[] args) {
         launch();
